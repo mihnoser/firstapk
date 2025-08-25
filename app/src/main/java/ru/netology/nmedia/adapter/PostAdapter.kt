@@ -6,6 +6,7 @@ import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.button.MaterialButton
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -30,6 +31,7 @@ class PostAdapter(
         val post = getItem(position)
         holder.bind(post)
     }
+
 }
 
 
@@ -42,11 +44,16 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published
             content.text = post.content
-            countlike.text = formatNumber(post.likes)
-            countshare.text = formatNumber(post.shared)
-            like.setImageResource(
-                if (post.likeByMe) R.drawable.ic_liked_24 else R.drawable.ic_like_24
-            )
+
+            like.text = formatNumber(post.likes)
+            share.text = formatNumber(post.shared)
+
+            like.isChecked = post.likeByMe
+            like.text = "${post.likes}"
+
+            share.isChecked = post.shareByMe
+            share.text = "${post.shared}"
+
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
             }

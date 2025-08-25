@@ -15,7 +15,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             999999,
             999,
             false,
-            false
+            false,
+            14
         ),
 
         Post(
@@ -26,7 +27,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             1366,
             999999,
             false,
-            false
+            false,
+            11
         ),
 
         Post(
@@ -37,7 +39,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             999999,
             2599,
             false,
-            false
+            false,
+            5
         ),
 
         Post(
@@ -48,7 +51,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             2599,
             3699,
             false,
-            false
+            false,
+            4
         ),
 
         Post(
@@ -59,7 +63,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             1799,
             5899,
             false,
-            false
+            false,
+            6
         ),
 
 
@@ -71,7 +76,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             1,
             1,
             false,
-            false
+            false,
+            12
         ),
 
         Post(
@@ -82,7 +88,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             99,
             1999,
             false,
-            false
+            false,
+            45
         ),
 
         Post(
@@ -93,7 +100,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             45,
             68,
             false,
-            false
+            false,
+            55
         ),
 
         Post(
@@ -104,7 +112,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             999999,
             999,
             false,
-            false
+            false,
+            23
         )
     )
 

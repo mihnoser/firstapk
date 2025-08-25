@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.AppTheme.Like.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/like_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.LikeButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">@color/like_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.IconButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">?attr/colorControlNormal</item>
+    </style>
+
+    <style name="Widget.AppTheme.Share.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/monochrom_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.ShareButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">@color/monochrom_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.Menu.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/monochrom_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.MenuButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">@color/monochrom_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.Menu.ViewBox" parent="Widget.Material3.CompoundButton.CheckBox">
+        <item name="buttonTint">@color/monochrom_color</item>
+    </style>
+
+    <style name="Widget.AppTheme.ViewButton" parent="Widget.Material3.Button.TextButton.Icon">
+        <item name="iconTint">@color/monochrom_color</item>
+    </style>
+
+</resources>

@@ -47,12 +47,17 @@
         app:layout_constraintStart_toEndOf="@id/avatar"
         tools:text="@sample/posts.json/data/published" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/menu"
+        style="@style/Widget.AppTheme.MenuButton"
+        android:minWidth="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/common_spacing"
+        android:checkable="true"
         android:background="@android:color/transparent"
+        app:icon="@drawable/menu_selector"
+        app:iconPadding="8dp"
         android:contentDescription="@string/description_post_menu"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -85,69 +90,55 @@
         app:constraint_referenced_ids="content"
         />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/like"
+        style="@style/Widget.AppTheme.LikeButton"
+        android:minWidth="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/service_spacing"
+        android:checkable="true"
         android:background="@android:color/transparent"
+        app:icon="@drawable/like_selector"
+        app:iconPadding="8dp"
         app:layout_constraintTop_toTopOf="@id/barrier2"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_like_24"
+        tools:text="7"
         />
 
-    <TextView
-        android:id="@+id/countlike"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        app:layout_constraintTop_toTopOf="@id/like"
-        app:layout_constraintStart_toEndOf="@id/like"
-        app:layout_constraintBottom_toBottomOf="@id/like"
-        tools:text="21" />
-
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/share"
+        style="@style/Widget.AppTheme.ShareButton"
+        android:minWidth="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/service_spacing"
+        android:checkable="true"
         android:background="@android:color/transparent"
+        app:icon="@drawable/share_selector"
+        app:iconPadding="8dp"
         app:layout_constraintTop_toTopOf="@id/barrier2"
-        app:layout_constraintStart_toEndOf="@id/countlike"
-        android:layout_marginStart="16dp"
-        app:srcCompat="@drawable/ic_share_24"
+        app:layout_constraintStart_toEndOf="@id/like"
+        tools:text="21"
         />
 
-    <TextView
-        android:id="@+id/countshare"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        app:layout_constraintTop_toTopOf="@id/share"
-        app:layout_constraintStart_toEndOf="@id/share"
-        app:layout_constraintBottom_toBottomOf="@id/share"
-        tools:text="7" />
-
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/views"
+        style="@style/Widget.AppTheme.ViewButton"
+        android:minWidth="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/service_spacing"
         android:background="@android:color/transparent"
-        android:layout_marginEnd="10dp"
+        android:enabled="false"
+        app:icon="@drawable/view_selector"
+        app:iconPadding="8dp"
         app:layout_constraintTop_toTopOf="@id/barrier2"
-        app:layout_constraintEnd_toStartOf="@id/countviews"
-        app:srcCompat="@drawable/ic_views_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="25"
         />
 
-    <TextView
-        android:id="@+id/countviews"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="@id/views"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="@id/views"
-        tools:text="25" />
+
 
 
 
