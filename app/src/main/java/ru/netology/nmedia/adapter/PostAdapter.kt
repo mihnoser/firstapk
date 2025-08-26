@@ -45,14 +45,11 @@ class PostViewHolder(
             published.text = post.published
             content.text = post.content
 
-            like.text = formatNumber(post.likes)
-            share.text = formatNumber(post.shared)
-
             like.isChecked = post.likeByMe
-            like.text = "${post.likes}"
+            like.text = formatNumber(post.likes)
 
             share.isChecked = post.shareByMe
-            share.text = "${post.shared}"
+            share.text = formatNumber(post.shared)
 
             like.setOnClickListener {
                 onInteractionListener.onLike(post)
