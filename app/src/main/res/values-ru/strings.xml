@@ -12,4 +12,6 @@
     <string name="edit_text">Изменение сообщения</string>
     <string name="menu_edit">Редактировать</string>
     <string name="error_empty_content">Содержимое не может быть пустым</string>
+    <string name="chooser_share_post" />
+    <string name="edit_post">Внесите изменения</string>
 </resources>
