@@ -1,12 +1,12 @@
 package ru.netology.nmedia.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.button.MaterialButton
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -16,6 +16,7 @@ interface OnInteractionListener {
     fun onEdit(post: Post)
     fun onRemove(post: Post)
     fun onShare(post: Post)
+    fun onPlayVideo(post: Post)
 }
 
 class PostAdapter(
@@ -31,7 +32,6 @@ class PostAdapter(
         val post = getItem(position)
         holder.bind(post)
     }
-
 }
 
 
@@ -50,6 +50,19 @@ class PostViewHolder(
 
             share.isChecked = post.shareByMe
             share.text = formatNumber(post.shared)
+
+            if (!post.video.isNullOrEmpty()) {
+                videoContainer.visibility = View.VISIBLE
+
+                val videoClickListener = View.OnClickListener {
+                    onInteractionListener.onPlayVideo(post)
+                }
+
+                videoContainer.setOnClickListener(videoClickListener)
+                playButton.setOnClickListener(videoClickListener)
+            } else {
+                videoContainer.visibility = View.GONE
+            }
 
             like.setOnClickListener {
                 onInteractionListener.onLike(post)

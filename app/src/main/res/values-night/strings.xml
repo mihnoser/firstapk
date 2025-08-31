@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="chooser_share_post" />
+    <string name="description_video">description_video</string>
+    <string name="description_play_video">description_play_video</string>
 </resources>

@@ -16,7 +16,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             999,
             false,
             false,
-            14
+            14,
+            "https://rutube.ru/video/f5a7aad4a468bd0cf3f56f74a511515f/"
         ),
 
         Post(
@@ -40,7 +41,8 @@ class PostRepositoryInMemoryImpl: PostRepository {
             2599,
             false,
             false,
-            5
+            5,
+            "https://rutube.ru/shorts/ed3f2263a314a94a8922e627929e36b2/"
         ),
 
         Post(
