@@ -12,7 +12,7 @@
     <string name="edit_text">Изменение сообщения</string>
     <string name="menu_edit">Редактировать</string>
     <string name="error_empty_content">Содержимое не может быть пустым</string>
-    <string name="chooser_share_post" />
+    <string name="chooser_share_post" >Выберите пост</string>
     <string name="edit_post">Внесите изменения</string>
     <string name="description_video">Превью</string>
     <string name="description_play_video">Воспроизвести</string>

@@ -11,7 +11,7 @@
     <string name="edit_text">Edit Message</string>
     <string name="menu_edit">Edit</string>
     <string name="error_empty_content">Content can\'t be empty</string>
-    <string name="chooser_share_post" />
+    <string name="chooser_share_post" >Choose post</string>
     <string name="edit_post">Edit post</string>
     <string name="description_video">description_video</string>
 </resources>

@@ -1,9 +1,7 @@
 package ru.netology.nmedia.activity
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.SyncContext
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContract
@@ -11,7 +9,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.ActivityMainBinding
 import ru.netology.nmedia.databinding.ActivityNewPostBinding
 
 class NewPostActivity : AppCompatActivity() {
