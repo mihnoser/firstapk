@@ -38,6 +38,9 @@ class MainActivity : AppCompatActivity() {
                 viewModel.likeById(post.id)
             }
             override fun onShare(post: Post) {
+
+                viewModel.shareById(post.id)
+
                 val intent = Intent().apply {
                     action = Intent.ACTION_SEND
                     type = "text/plain"
@@ -127,7 +130,6 @@ class MainActivity : AppCompatActivity() {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl))
 
-            // Проверяем, есть ли приложения для обработки этого Intent
             if (intent.resolveActivity(packageManager) != null) {
                 startActivity(intent)
             } else {
