@@ -1,42 +1,54 @@
-package ru.netology.nmedia.activity
+package ru.netology.nmedia.fragment
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Patterns
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
-import androidx.activity.result.launch
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.EditPostActivity
+import ru.netology.nmedia.activity.EditPostContract
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
-import ru.netology.nmedia.databinding.ActivityMainBinding
+import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewModel.PostViewModel
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+class FeedFragment : Fragment() {
 
-        val viewModel: PostViewModel by viewModels()
+    private lateinit var viewModel: PostViewModel
 
-        val newPostLauncher = registerForActivityResult(NewPostContract) { result ->
-            result ?: return@registerForActivityResult
-            viewModel.save(content = result)
+    private val editPostLauncher = registerForActivityResult(
+        EditPostContract
+    ) { result ->
+        result?.let { content ->
+            viewModel.save(content)
         }
+    }
 
-        val editPostLauncher = registerForActivityResult(EditPostContract) { result ->
-            result ?: return@registerForActivityResult
-            viewModel.save(result)
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
 
-        val adapter = PostAdapter(object  : OnInteractionListener {
+        val binding = FragmentFeedBinding.inflate(inflater, container, false)
+
+        viewModel = viewModels<PostViewModel>(ownerProducer = ::requireParentFragment).value
+
+        val adapter = PostAdapter(object : OnInteractionListener {
+
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
             }
+
             override fun onShare(post: Post) {
 
                 viewModel.shareById(post.id)
@@ -49,12 +61,19 @@ class MainActivity : AppCompatActivity() {
                 val chooser = Intent.createChooser(intent, getString(R.string.chooser_share_post))
                 startActivity(chooser)
             }
+
             override fun onRemove(post: Post) {
                 viewModel.removeById(post.id)
             }
+
             override fun onEdit(post: Post) {
                 viewModel.edit(post)
                 editPostLauncher.launch(post.content)
+            }
+
+            override fun onOpen(post: Post) {
+                findNavController().navigate(R.id.postFragment, Bundle().apply {
+                    putInt(PostFragment.KEY_POST_ID, post.id) })
             }
 
             override fun onPlayVideo(post: Post) {
@@ -63,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                         openVideo(videoUrl)
                     } else {
                         Toast.makeText(
-                            this@MainActivity,
+                            requireContext(),
                             "Некорректная ссылка на видео",
                             Toast.LENGTH_SHORT
                         ).show()
@@ -73,7 +92,7 @@ class MainActivity : AppCompatActivity() {
 
         })
         binding.list.adapter = adapter
-        viewModel.data.observe(this) { posts ->
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
             val new = posts.size > adapter.currentList.size && adapter.currentList.isNotEmpty()
             adapter.submitList(posts) {
                 if (new) {
@@ -84,45 +103,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.add.setOnClickListener {
-            newPostLauncher.launch()
+            findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
-        /* viewModel.edited.observe(this) {
-            if (it.id != 0) {
-                binding.content.setText(it.content)
-                AndroidUtils.showKeyboard(binding.content)
-                binding.editGroup.visibility = View.VISIBLE
-            } else {
-                binding.editGroup.visibility = View.GONE
-            }
-        }
-        binding.save.setOnClickListener {
-            with(binding.content) {
-                if (text.isNullOrBlank()) {
-                    Toast.makeText(
-                        this@MainActivity,
-                        R.string.error_empty_content,
-                        Toast.LENGTH_LONG
-                    ).show()
-                    return@setOnClickListener
-                }
+        return binding.root
 
-                viewModel.save(text.toString())
-
-                binding.content.setText("")
-                binding.content.clearFocus()
-
-                AndroidUtils.hideKeyboard(binding.content)
-            }
-
-        }
-
-        binding.cancel.setOnClickListener {
-            viewModel.cancelEdit()
-            binding.content.setText("")
-            binding.content.clearFocus()
-            AndroidUtils.hideKeyboard(binding.content)
-        } */
 
     }
 
@@ -130,18 +115,18 @@ class MainActivity : AppCompatActivity() {
         try {
             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(videoUrl))
 
-            if (intent.resolveActivity(packageManager) != null) {
+            if (intent.resolveActivity(requireActivity().packageManager) != null) {
                 startActivity(intent)
             } else {
                 Toast.makeText(
-                    this,
+                    requireContext(),
                     "Не найдено приложение для открытия видео",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         } catch (e: Exception) {
             Toast.makeText(
-                this,
+                requireContext(),
                 "Ошибка при открытии видео: ${e.message}",
                 Toast.LENGTH_SHORT
             ).show()
@@ -152,4 +137,5 @@ class MainActivity : AppCompatActivity() {
         return Patterns.WEB_URL.matcher(url).matches() &&
                 url.contains("rutube.ru", ignoreCase = true)
     }
+
 }
