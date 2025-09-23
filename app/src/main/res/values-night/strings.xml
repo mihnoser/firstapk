@@ -3,4 +3,8 @@
     <string name="chooser_share_post" >Chooser post</string>
     <string name="description_video">description_video</string>
     <string name="description_play_video">description_play_video</string>
+    <string name="google_play_unavailable" >Google Api Unavailable</string>
+    <string name="channel_remote_name" >Server notifications</string>
+    <string name="channel_remote_description" >Notifications from remote server</string>
+    <string name="notification_new_post" />
 </resources>

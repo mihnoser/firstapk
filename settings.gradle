@@ -2,6 +2,13 @@ pluginManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("https://company/com/mavev2")
+        }
+        mavenLocal()
+        flatDir {
+            dirs "libs"
+        }
         gradlePluginPortal()
     }
 }
