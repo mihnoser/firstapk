@@ -20,5 +20,5 @@
     <string name="notification_user_liked">%1$s поставил лайк посту %2$s</string>
     <string name="channel_remote_name" >Уведомления сервера</string>
     <string name="channel_remote_description" >Уведомления с удаленного сервера</string>
-    <string name="notification_new_post" >%3$s добавил пост</string>
+    <string name="notification_new_post" >%1$s добавил(а) новый пост</string>
 </resources>

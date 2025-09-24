@@ -39,16 +39,16 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        message.data[action]?.let { action ->
-            when (Action.valueOf(action)) {
-                Action.LIKE -> hundleLike(gson.fromJson(message.data[content], Like::class.java))
+        message.data[action]?.let {
+            when (Action.getValidAction(it)) {
+                Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
                 Action.NEW_POST -> handleAddPost(gson.fromJson(message.data[content], AddPost::class.java))
                 Action.ERROR -> println("ERROR_PUSH")
             }
         }
     }
 
-    private fun hundleLike(content: Like) {
+    private fun handleLike(content: Like) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(
@@ -90,6 +90,17 @@ class FCMService : FirebaseMessagingService() {
 
     enum class Action {
         LIKE, NEW_POST, ERROR;
+
+        companion object {
+            fun getValidAction(action: String): Action {
+                return try {
+                    valueOf(action)
+                } catch (exception: IllegalArgumentException) {
+                    ERROR
+                }
+            }
+        }
+
     }
 
     data class Like(
