@@ -9,6 +9,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.snapshots.Snapshot.Companion.observe
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -73,7 +75,7 @@ class FeedFragment : Fragment() {
 
             override fun onOpen(post: Post) {
                 findNavController().navigate(R.id.postFragment, Bundle().apply {
-                    putInt(PostFragment.KEY_POST_ID, post.id) })
+                    putInt(PostFragment.KEY_POST_ID, post.id.toInt()) })
             }
 
             override fun onPlayVideo(post: Post) {
@@ -92,15 +94,17 @@ class FeedFragment : Fragment() {
 
         })
         binding.list.adapter = adapter
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val new = posts.size > adapter.currentList.size && adapter.currentList.isNotEmpty()
-            adapter.submitList(posts) {
-                if (new) {
-                    binding.list.smoothScrollToPosition(0)
-                }
-
-            }
+        viewModel.data.observe(viewLifecycleOwner) { state ->
+            adapter.submitList(state.posts)
+            binding.progress.isVisible = state.loading
+            binding.empty.isVisible = state.empty
+            binding.errorGroup.isVisible = state.error
         }
+
+        binding.retry.setOnClickListener {
+            viewModel.load()
+        }
+
 
         binding.add.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)

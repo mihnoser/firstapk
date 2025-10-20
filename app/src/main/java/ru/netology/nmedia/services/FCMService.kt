@@ -104,14 +104,14 @@ class FCMService : FirebaseMessagingService() {
     }
 
     data class Like(
-        val userId: Int,
+        val userId: Long,
         val userName: String,
-        val postId: Int,
+        val postId: Long,
         val postAuthor: String,
     )
 
     data class AddPost(
-        val userId: Int,
+        val userId: Long,
         val postAuthor: String,
         val postText: String,
         val postTopic: String

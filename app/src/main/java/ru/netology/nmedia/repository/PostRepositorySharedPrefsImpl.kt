@@ -12,7 +12,7 @@ class PostRepositorySharedPrefsImpl(context: Context): PostRepository {
 
     private val prefs = context.getSharedPreferences("repo", Context.MODE_PRIVATE)
 
-    private var nextId = 1
+    private var nextId = 1L
     private var posts = listOf<Post>()
         set (value) {
             field = value
@@ -24,7 +24,7 @@ class PostRepositorySharedPrefsImpl(context: Context): PostRepository {
     init {
         prefs.getString(KEY_POSTS, null)?.let {
             posts = gson.fromJson(it, type)
-            nextId = posts.maxOfOrNull { it.id }?.inc() ?: 1
+            nextId = (posts.maxOfOrNull { it.id }?.inc() ?: 1)
             data.value = posts
         }
     }
@@ -35,33 +35,42 @@ class PostRepositorySharedPrefsImpl(context: Context): PostRepository {
         }
     }
 
-    override fun get(): LiveData<List<Post>> = data
-    override fun likeById(id: Int) {
+    override fun getAll(): LiveData<List<Post>> = data
+
+    override fun likeById(id: Long) {
         posts = posts.map {
-            if (it.id != id) it else it.copy(likeByMe = !it.likeByMe, likes = if (it.likeByMe) it.likes - 1 else it.likes + 1)
+            if (it.id != id) it else it.copy(likeByMe = !it.likeByMe, likes = if (!it.likeByMe) it.likes - 1 else it.likes + 1)
         }
         data.value = posts
     }
 
-    override fun shareById(id: Int) {
+    override fun shareById(id: Long) {
         posts = posts.map {
-            if (it.id != id) it else it.copy(shareByMe = !it.shareByMe, shared = it.shared + 1)
+            if (it.id != id) it else it.copy(shared = it.shared + 1)
         }
         data.value = posts
     }
 
-    override fun removeById(id: Int) {
+    override fun removeById(id: Long) {
         posts = posts.filter { it.id != id }
         data.value = posts
     }
 
-    override fun save(post: Post) {
-        posts = if (post.id == 0) {
-            listOf(post.copy(id = nextId++, author = "Me", published = "now")) + posts
+    override fun save(post: Post): Post {
+        val saved = if (post.id == 0L) {
+            post.copy(id = nextId++, author = "Me", published = "now")
         } else {
-            posts.map { if (it.id != post.id) it else it.copy(content = post.content) }
+            posts.find { it.id == post.id }?.copy(content = post.content) ?: post
+        }
+
+        posts = if (post.id == 0L) {
+            listOf(saved) + posts
+        } else {
+            posts.map { if (it.id != post.id) it else saved }
         }
         data.value = posts
+
+        return saved
     }
 
     companion object {

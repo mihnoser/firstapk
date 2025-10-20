@@ -110,12 +110,12 @@ object PostDiffCalback: DiffUtil.ItemCallback<Post>() {
 
 }
 
-fun formatNumber(count: Int): String {
+fun formatNumber(count: Long): String {
     return when {
         count < 1000 -> count.toString()
         count < 10000 -> {
             val hundreds = (count % 1000) / 100
-            if (hundreds == 0) {
+            if (hundreds == 0.toLong()) {
                 "${count / 1000}K"
             } else {
                 "${count / 1000}.${hundreds}K"
@@ -125,7 +125,7 @@ fun formatNumber(count: Int): String {
         count < 1000000 -> "${count / 1000}K"
         else -> {
             val hundredThousands = (count % 1000000) / 100000
-            if (hundredThousands == 0) {
+            if (hundredThousands == 0.toLong()) {
                 "${count / 1000000}M"
             } else {
                 "${count / 1000000}.${hundredThousands}M"

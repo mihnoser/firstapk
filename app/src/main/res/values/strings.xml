@@ -20,4 +20,7 @@
     <string name="notification_new_post">%1$s add new post</string>
     <string name="channel_remote_name">Server notifications</string>
     <string name="channel_remote_description">Notifications from remote server</string>
+    <string name="no_posts">No posts</string>
+    <string name="something_went_wrong">something went wrong</string>
+    <string name="retry">Retry</string>
 </resources>

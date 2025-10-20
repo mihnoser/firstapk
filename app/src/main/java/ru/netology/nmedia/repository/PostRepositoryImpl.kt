@@ -11,7 +11,7 @@ class PostRepositoryImpl (
 ) : PostRepository {
 
 
-    override fun get(): LiveData<List<Post>> = dao.get().map { listPosts->
+    override fun getAll(): LiveData<List<Post>> = dao.get().map { listPosts->
         listPosts.map { entity ->
             entity.toDto()
         }
@@ -22,15 +22,15 @@ class PostRepositoryImpl (
 //        dao.save(post.toEntity())
     }
 
-    override fun likeById(id: Int) {
+    override fun likeById(id: Long) {
         dao.likeById(id)
     }
 
-    override fun shareById(id: Int) {
+    override fun shareById(id: Long) {
         dao.shareById(id)
     }
 
-    override fun removeById(id: Int) {
+    override fun removeById(id: Long) {
         dao.removeById(id)
     }
 }
