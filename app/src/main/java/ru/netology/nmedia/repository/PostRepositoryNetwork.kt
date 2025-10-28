@@ -52,15 +52,63 @@ class PostRepositoryNetwork(): PostRepository {
         return gson.fromJson(textBody, Post::class.java)
     }
 
-    override fun likeById(id: Long) {
-        TODO()
+    override fun likeById(id: Long): Post {
+        val request = Request.Builder()
+            .url("${BASE_URL}api/slow/posts/$id/likes")
+            .post("".toRequestBody(jsonType))
+            .build()
+
+        return client.newCall(request).execute().use { response ->
+            val textBody = response.body?.string() ?: throw RuntimeException("Empty response")
+            if (!response.isSuccessful) {
+                throw RuntimeException("Failed to like post: ${response.code}")
+            }
+            gson.fromJson(textBody, Post::class.java)
+        }
     }
 
-    override fun shareById(id: Long) {
-        TODO()
+    override fun unlikeById(id: Long): Post {
+        val request = Request.Builder()
+            .url("${BASE_URL}api/slow/posts/$id/likes")
+            .delete()
+            .build()
+
+        return client.newCall(request).execute().use { response ->
+            val textBody = response.body?.string() ?: throw RuntimeException("Empty response")
+            if (!response.isSuccessful) {
+                throw RuntimeException("Failed to unlike post: ${response.code}")
+            }
+            gson.fromJson(textBody, Post::class.java)
+        }
+    }
+
+    override fun shareById(id: Long): Post {
+        val request = Request.Builder()
+            .url("${BASE_URL}api/slow/posts/$id/shares")
+            .post("".toRequestBody(jsonType))
+            .build()
+
+        return client.newCall(request).execute().use { response ->
+            val textBody = response.body?.string() ?: throw RuntimeException("Empty response")
+            if (!response.isSuccessful) {
+                throw RuntimeException("Failed to share post: ${response.code}")
+            }
+            gson.fromJson(textBody, Post::class.java)
+        }
     }
 
     override fun removeById(id: Long) {
-        TODO()
+        val request = Request.Builder()
+            .url(url = "${BASE_URL}api/slow/posts/$id")
+            .delete()
+            .build()
+
+        val call = client.newCall(request)
+
+        val response = call.execute()
+
+        if (!response.isSuccessful) {
+            throw RuntimeException("Failed to delete post: ${response.code}")
+        }
     }
 }

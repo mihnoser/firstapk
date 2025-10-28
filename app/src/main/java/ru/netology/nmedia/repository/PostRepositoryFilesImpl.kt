@@ -6,8 +6,10 @@ import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.text.SimpleDateFormat
+import java.util.Date
 
-class PostRepositoryFilesImpl(private val context: Context): PostRepository {
+/*class PostRepositoryFilesImpl(private val context: Context): PostRepository {
 
     private var nextId = 1
     private var posts = listOf<Post>()
@@ -16,6 +18,7 @@ class PostRepositoryFilesImpl(private val context: Context): PostRepository {
             sync()
         }
 
+
     private val data = MutableLiveData(posts)
 
     init {
@@ -23,7 +26,7 @@ class PostRepositoryFilesImpl(private val context: Context): PostRepository {
         if (file.exists()) {
             context.openFileInput(FILENAME).bufferedReader().use {
                 posts = gson.fromJson(it, type)
-                nextId = posts.maxOfOrNull { it.id }?.inc() ?: 1
+                nextId = (posts.maxOfOrNull { it.id }?.inc() ?: 1) as Int
                 data.value = posts
             }
         }
@@ -36,9 +39,9 @@ class PostRepositoryFilesImpl(private val context: Context): PostRepository {
     }
 
     override fun getAll(): LiveData<List<Post>> = data
-    override fun likeById(id: Int) {
+    override fun likeById(id: Long) {
         posts = posts.map {
-            if (it.id != id) it else it.copy(likeByMe = !it.likeByMe, likes = if (it.likeByMe) it.likes - 1 else it.likes + 1)
+            if (it.id.toInt().toLong() != id) it else it.copy(likeByMe = !it.likeByMe, likes = if (it.likeByMe) it.likes - 1 else it.likes + 1)
         }
         data.value = posts
     }
@@ -55,13 +58,14 @@ class PostRepositoryFilesImpl(private val context: Context): PostRepository {
         data.value = posts
     }
 
-    override fun save(post: Post) {
-        posts = if (post.id == 0) {
-            listOf(post.copy(id = nextId++, author = "Me", published = "now")) + posts
+    override fun save(post: Post): Post {
+        posts = if (post.id == 0L) {
+            listOf(post.copy(id = nextId++.toLong(), author = "Me", published = 22/10/2025)) + posts
         } else {
             posts.map { if (it.id != post.id) it else it.copy(content = post.content) }
         }
         data.value = posts
+        return TODO("Provide the return value")
     }
 
     companion object {
@@ -72,4 +76,5 @@ class PostRepositoryFilesImpl(private val context: Context): PostRepository {
 
     }
 
-}
+
+}*/

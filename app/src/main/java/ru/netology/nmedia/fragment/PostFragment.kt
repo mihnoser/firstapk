@@ -39,11 +39,20 @@ class PostFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val binding = FragmentPostBinding.inflate(inflater, container, false)
-        val postId = arguments?.getInt(KEY_POST_ID, -1) ?: -1
+        val postId = arguments?.getLong(KEY_POST_ID, -1L) ?: -1L
         val viewHolder = PostViewHolder(binding.post, object : OnInteractionListener {
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                println("FRAGMENT: onLike called - postId: ${post.id}, current likeByMe: ${post.likedByMe}, current likes: ${post.likes}")
+                //                                                          ↑
+                // Здесь в тексте написано "likeByMe", но выводится значение post.likedByMe
+                // Это просто опечатка в тексте лога, не влияющая на логику
+
+                if (post.likedByMe) {  // ← это правильная проверка!
+                    viewModel.unlikeById(post.id)
+                } else {
+                    viewModel.likeById(post.id)
+                }
             }
 
             override fun onShare(post: Post) {
@@ -70,7 +79,7 @@ class PostFragment : Fragment() {
 
             override fun onOpen(post: Post) {
                 findNavController().navigate(R.id.postFragment, Bundle().apply {
-                    putInt(PostFragment.KEY_POST_ID, post.id)
+                    putLong(PostFragment.KEY_POST_ID, post.id)
                 })
             }
 
@@ -89,8 +98,9 @@ class PostFragment : Fragment() {
             }
         })
 
-        viewModel.data.observe(viewLifecycleOwner) { posts ->
-            val post = posts.find { it.id == postId } ?: run {
+        viewModel.data.observe(viewLifecycleOwner) { feedModel ->
+            val posts = feedModel.posts
+            val post = posts.find { it.id == postId} ?: run {
                 findNavController().navigateUp()
                 return@observe
             }

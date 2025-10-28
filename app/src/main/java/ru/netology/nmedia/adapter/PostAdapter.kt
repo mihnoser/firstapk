@@ -43,14 +43,14 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
-            published.text = post.published
+            published.text = post.published.toString()
             content.text = post.content
 
-            like.isChecked = post.likeByMe
-            like.text = formatNumber(post.likes)
+            like.isChecked = post.likedByMe
+            like.text = formatNumber(post.likes.toLong())
 
             share.isChecked = post.shareByMe
-            share.text = formatNumber(post.shared)
+            share.text = formatNumber(post.shared.toLong())
 
             if (!post.video.isNullOrEmpty()) {
                 videoContainer.visibility = View.VISIBLE

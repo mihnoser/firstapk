@@ -14,11 +14,11 @@ import kotlin.concurrent.thread
 private val empty = Post(
     id = 0,
     author = "",
-    published = "",
+    published = 0,
     content = "",
     likes = 0,
     shared = 0,
-    likeByMe = false,
+    likedByMe = false,
     shareByMe = false,
     views = 0,
     video = null
@@ -27,7 +27,7 @@ private val empty = Post(
 class PostViewModel(application: Application): AndroidViewModel(application) {
 
     private val repository: PostRepository = PostRepositoryNetwork()
-    private val _data: MutableLiveData<FeedModel> = MutableLiveData(FeedModel())
+    private val _data = MutableLiveData<FeedModel>()
     val data: LiveData<FeedModel>
         get() = _data
     val edited = MutableLiveData(empty)
@@ -38,9 +38,45 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         load()
     }
 
-    fun likeById(id: Long) = repository.likeById(id)
-    fun shareById(id: Long) = repository.shareById(id)
-    fun removeById(id: Long) = repository.removeById(id)
+    fun likeById(id: Long) = thread {
+        try {
+            val updatedPost = repository.likeById(id)
+            updatePostInList(updatedPost)
+        } catch (e: Exception) {
+            _data.postValue(FeedModel(error = true))
+        }
+    }
+
+    fun unlikeById(id: Long) = thread {
+        try {
+            val updatedPost = repository.unlikeById(id)
+            updatePostInList(updatedPost)
+        } catch (e: Exception) {
+            _data.postValue(FeedModel(error = true))
+        }
+    }
+
+    private fun updatePostInList(updatedPost: Post) {
+        val currentPosts = _data.value?.posts ?: emptyList()
+        val updatedPosts = currentPosts.map { post ->
+            if (post.id == updatedPost.id) updatedPost else post
+        }
+        _data.postValue(FeedModel(posts = updatedPosts, empty = updatedPosts.isEmpty()))
+    }
+
+    fun shareById(id: Long) = thread {
+        try {
+            val updatedPost = repository.shareById(id)
+            updatePostInList(updatedPost)
+        } catch (e: Exception) {
+            _data.postValue(FeedModel(error = true))
+        }
+    }
+
+    fun removeById(id: Long) = thread {
+        repository.removeById(id)
+        load()
+    }
     fun save(content: String) {
         thread {
             edited.value?.let {

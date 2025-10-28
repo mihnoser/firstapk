@@ -10,7 +10,7 @@ import ru.netology.nmedia.entity.PostEntity
 interface PostDao {
 
     @Query("SELECT * FROM PostEntity ORDER BY id DESC")
-    fun get(): LiveData<List<PostEntity>>
+    fun getAll(): List<PostEntity>
 
     @Insert
     fun insert(post: PostEntity)

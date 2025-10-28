@@ -6,38 +6,39 @@ plugins {
 }
 
 android {
-    namespace 'ru.netology.nmedia'
-    compileSdk 35
+    namespace = 'ru.netology.nmedia'
+    compileSdk = 35
 
     defaultConfig {
-        applicationId "ru.netology.nmedia"
-        minSdk 24
-        targetSdk 33
-        versionCode 1
-        versionName "1.0"
+        applicationId = "ru.netology.nmedia"
+        minSdk = 24
+        targetSdk = 33
+        versionCode = 1
+        versionName = "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            manifestPlaceholders["usesCleartextTraffic"] = false
+            minifyEnabled = false
+            proguardFiles = [getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro']
+            manifestPlaceholders = ["usesCleartextTraffic": false]
         }
         debug {
-            manifestPlaceholders["usesCleartextTraffic"] = true
+            manifestPlaceholders = ["usesCleartextTraffic": true]
         }
     }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
         jvmTarget = '1.8'
     }
     buildFeatures.viewBinding = true
-    buildToolsVersion '34.0.0'
+    buildToolsVersion = '34.0.0'
 }
 
 dependencies {
@@ -62,6 +63,7 @@ dependencies {
     def okhttp_version = "5.1.0"
     def fragment_version = "1.7.0"
     def material_version ="1.13.0"
+    def swiperefreshlayout_version ="1.1.0"
 
 
 
@@ -86,6 +88,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation "androidx.fragment:fragment:$fragment_version"
     implementation "com.google.android.material:material:$material_version"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:$swiperefreshlayout_version"
 
 
     testImplementation "junit:junit:$junit_version"

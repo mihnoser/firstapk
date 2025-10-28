@@ -26,6 +26,7 @@ import ru.netology.nmedia.viewModel.PostViewModel
 class FeedFragment : Fragment() {
 
     private lateinit var viewModel: PostViewModel
+    private lateinit var binding: FragmentFeedBinding
 
     private val editPostLauncher = registerForActivityResult(
         EditPostContract
@@ -48,7 +49,11 @@ class FeedFragment : Fragment() {
         val adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
-                viewModel.likeById(post.id)
+                if (post.likedByMe) {
+                    viewModel.unlikeById(post.id)
+                } else {
+                    viewModel.likeById(post.id)
+                }
             }
 
             override fun onShare(post: Post) {
@@ -75,7 +80,7 @@ class FeedFragment : Fragment() {
 
             override fun onOpen(post: Post) {
                 findNavController().navigate(R.id.postFragment, Bundle().apply {
-                    putInt(PostFragment.KEY_POST_ID, post.id.toInt()) })
+                    putLong(PostFragment.KEY_POST_ID, post.id) })
             }
 
             override fun onPlayVideo(post: Post) {
@@ -94,11 +99,18 @@ class FeedFragment : Fragment() {
 
         })
         binding.list.adapter = adapter
+
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.load()
+        }
+
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.progress.isVisible = state.loading
             binding.empty.isVisible = state.empty
             binding.errorGroup.isVisible = state.error
+
+            binding.swipeRefreshLayout.isRefreshing = state.loading
         }
 
         binding.retry.setOnClickListener {
