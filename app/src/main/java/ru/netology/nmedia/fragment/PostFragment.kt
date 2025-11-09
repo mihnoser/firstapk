@@ -43,20 +43,10 @@ class PostFragment : Fragment() {
         val viewHolder = PostViewHolder(binding.post, object : OnInteractionListener {
 
             override fun onLike(post: Post) {
-                println("FRAGMENT: onLike called - postId: ${post.id}, current likeByMe: ${post.likedByMe}, current likes: ${post.likes}")
-                //                                                          ↑
-                // Здесь в тексте написано "likeByMe", но выводится значение post.likedByMe
-                // Это просто опечатка в тексте лога, не влияющая на логику
-
-                if (post.likedByMe) {  // ← это правильная проверка!
-                    viewModel.unlikeById(post.id)
-                } else {
-                    viewModel.likeById(post.id)
-                }
+                viewModel.likeById(post.id)
             }
 
             override fun onShare(post: Post) {
-
                 viewModel.shareById(post.id)
 
                 val intent = Intent().apply {
@@ -108,7 +98,6 @@ class PostFragment : Fragment() {
         }
 
         return binding.root
-
     }
 
     companion object {
@@ -141,7 +130,4 @@ class PostFragment : Fragment() {
         return Patterns.WEB_URL.matcher(url).matches() &&
                 url.contains("rutube.ru", ignoreCase = true)
     }
-
-
-
 }

@@ -33,46 +33,30 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+
     init {
         load()
     }
 
     fun likeById(id: Long) {
-        repository.likeByIdAsync(id, object : PostRepository.PostCallback {
-            override fun onSuccess(post: Post) {
-                updatePostInList(post)
+        val currentPosts = _data.value?.posts ?: return
+        val post = currentPosts.find { it.id == id } ?: return
+
+        repository.likeByIdAsync(id, post.likedByMe, object : PostRepository.PostCallback<Post> {
+            override fun onSuccess(result: Post) {
+                updatePostInList(result)
             }
 
             override fun onError(e: Exception) {
                 _data.postValue(FeedModel(error = true))
             }
         })
-    }
-
-    fun unlikeById(id: Long) {
-        repository.unlikeByIdAsync(id, object : PostRepository.PostCallback {
-            override fun onSuccess(post: Post) {
-                updatePostInList(post)
-            }
-
-            override fun onError(e: Exception) {
-                _data.postValue(FeedModel(error = true))
-            }
-        })
-    }
-
-    private fun updatePostInList(updatedPost: Post) {
-        val currentPosts = _data.value?.posts ?: emptyList()
-        val updatedPosts = currentPosts.map { post ->
-            if (post.id == updatedPost.id) updatedPost else post
-        }
-        _data.postValue(FeedModel(posts = updatedPosts, empty = updatedPosts.isEmpty()))
     }
 
     fun shareById(id: Long) {
-        repository.shareByIdAsync(id, object : PostRepository.PostCallback {
-            override fun onSuccess(post: Post) {
-                updatePostInList(post)
+        repository.shareByIdAsync(id, object : PostRepository.PostCallback<Post> {
+            override fun onSuccess(result: Post) {
+                updatePostInList(result)
             }
 
             override fun onError(e: Exception) {
@@ -82,8 +66,8 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
     }
 
     fun removeById(id: Long) {
-        repository.removeByIdAsync(id, object : PostRepository.RemoveCallback {
-            override fun onSuccess() {
+        repository.removeByIdAsync(id, object : PostRepository.PostCallback<Unit> {
+            override fun onSuccess(result: Unit) {
                 load()
             }
 
@@ -97,8 +81,8 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         edited.value?.let {
             val text = content.trim()
             if (it.content != text) {
-                repository.saveAsync(it.copy(content = text), object : PostRepository.PostCallback {
-                    override fun onSuccess(post: Post) {
+                repository.saveAsync(it.copy(content = text), object : PostRepository.PostCallback<Post> {
+                    override fun onSuccess(result: Post) {
                         _postCreated.postValue(Unit)
                         edited.postValue(empty)
                     }
@@ -115,15 +99,23 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     fun load() {
         _data.postValue(FeedModel(loading = true))
-        repository.getAllAsync(object : PostRepository.GetAllCallback {
-            override fun onSuccess(posts: List<Post>) {
-                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+        repository.getAllAsync(object : PostRepository.PostCallback<List<Post>> {
+            override fun onSuccess(result: List<Post>) {
+                _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
             }
 
             override fun onError(e: Exception) {
                 _data.postValue(FeedModel(error = true))
             }
         })
+    }
+
+    private fun updatePostInList(updatedPost: Post) {
+        val currentPosts = _data.value?.posts ?: emptyList()
+        val updatedPosts = currentPosts.map { post ->
+            if (post.id == updatedPost.id) updatedPost else post
+        }
+        _data.postValue(FeedModel(posts = updatedPosts, empty = updatedPosts.isEmpty()))
     }
 
     fun edit(post: Post) {

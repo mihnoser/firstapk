@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.snapshots.Snapshot.Companion.observe
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -25,7 +24,10 @@ import ru.netology.nmedia.viewModel.PostViewModel
 
 class FeedFragment : Fragment() {
 
-    private lateinit var viewModel: PostViewModel
+    private val viewModel: PostViewModel by viewModels(
+        ownerProducer = ::requireParentFragment
+    )
+
     private lateinit var binding: FragmentFeedBinding
 
     private val editPostLauncher = registerForActivityResult(
@@ -42,22 +44,15 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val binding = FragmentFeedBinding.inflate(inflater, container, false)
-
-        viewModel = viewModels<PostViewModel>(ownerProducer = ::requireParentFragment).value
+        binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         val adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
-                if (post.likedByMe) {
-                    viewModel.unlikeById(post.id)
-                } else {
-                    viewModel.likeById(post.id)
-                }
+                viewModel.likeById(post.id)
             }
 
             override fun onShare(post: Post) {
-
                 viewModel.shareById(post.id)
 
                 val intent = Intent().apply {
@@ -80,7 +75,8 @@ class FeedFragment : Fragment() {
 
             override fun onOpen(post: Post) {
                 findNavController().navigate(R.id.postFragment, Bundle().apply {
-                    putLong(PostFragment.KEY_POST_ID, post.id) })
+                    putLong(PostFragment.KEY_POST_ID, post.id)
+                })
             }
 
             override fun onPlayVideo(post: Post) {
@@ -117,14 +113,11 @@ class FeedFragment : Fragment() {
             viewModel.load()
         }
 
-
         binding.add.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
         return binding.root
-
-
     }
 
     private fun openVideo(videoUrl: String) {
@@ -153,5 +146,4 @@ class FeedFragment : Fragment() {
         return Patterns.WEB_URL.matcher(url).matches() &&
                 url.contains("rutube.ru", ignoreCase = true)
     }
-
 }

@@ -3,13 +3,18 @@ package ru.netology.nmedia.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.PopupMenu
+import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.view.load
+import ru.netology.nmedia.view.loadCircleCrop
+
 
 interface OnInteractionListener {
     fun onLike(post: Post)
@@ -39,18 +44,37 @@ class PostAdapter(
 class PostViewHolder(
     private val binding: CardPostBinding,
     private val onInteractionListener: OnInteractionListener
-    ) : RecyclerView.ViewHolder(binding.root) {
+) : RecyclerView.ViewHolder(binding.root) {
+
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
 
+            avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
+
             like.isChecked = post.likedByMe
             like.text = formatNumber(post.likes.toLong())
 
             share.isChecked = post.shareByMe
             share.text = formatNumber(post.shared.toLong())
+
+            if (post.attachment != null && post.attachment.type == AttachmentType.IMAGE) {
+                attachmentContainer.visibility = View.VISIBLE
+
+                val imageUrl = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
+                attachmentImage.load(imageUrl)
+
+                post.attachment.description?.let { description ->
+                    attachmentDescription.visibility = View.VISIBLE
+                    attachmentDescription.text = description
+                } ?: run {
+                    attachmentDescription.visibility = View.GONE
+                }
+            } else {
+                attachmentContainer.visibility = View.GONE
+            }
 
             if (!post.video.isNullOrEmpty()) {
                 videoContainer.visibility = View.VISIBLE
@@ -72,6 +96,7 @@ class PostViewHolder(
             share.setOnClickListener {
                 onInteractionListener.onShare(post)
             }
+
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.menu_post)
@@ -94,7 +119,6 @@ class PostViewHolder(
             root.setOnClickListener {
                 onInteractionListener.onOpen(post)
             }
-
         }
     }
 }
