@@ -34,6 +34,10 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
     val postCreated: LiveData<Unit>
         get() = _postCreated
 
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
     init {
         load()
     }
@@ -45,10 +49,12 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         repository.likeByIdAsync(id, post.likedByMe, object : PostRepository.PostCallback<Post> {
             override fun onSuccess(result: Post) {
                 updatePostInList(result)
+                _errorMessage.postValue(null)
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(e: Throwable) {
                 _data.postValue(FeedModel(error = true))
+                _errorMessage.postValue("Failed to like: ${e.message}")
             }
         })
     }
@@ -57,10 +63,12 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         repository.shareByIdAsync(id, object : PostRepository.PostCallback<Post> {
             override fun onSuccess(result: Post) {
                 updatePostInList(result)
+                _errorMessage.postValue(null)
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(e: Throwable) {
                 _data.postValue(FeedModel(error = true))
+                _errorMessage.postValue("Failed to share: ${e.message}")
             }
         })
     }
@@ -69,10 +77,12 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         repository.removeByIdAsync(id, object : PostRepository.PostCallback<Unit> {
             override fun onSuccess(result: Unit) {
                 load()
+                _errorMessage.postValue(null)
             }
 
-            override fun onError(e: Exception) {
+            override fun onError(e: Throwable) {
                 _data.postValue(FeedModel(error = true))
+                _errorMessage.postValue("Failed to delete: ${e.message}")
             }
         })
     }
@@ -85,10 +95,12 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
                     override fun onSuccess(result: Post) {
                         _postCreated.postValue(Unit)
                         edited.postValue(empty)
+                        _errorMessage.postValue(null)
                     }
 
-                    override fun onError(e: Exception) {
+                    override fun onError(e: Throwable) {
                         _data.postValue(FeedModel(error = true))
+                        _errorMessage.postValue("Failed to save: ${e.message}")
                     }
                 })
             } else {
@@ -99,15 +111,26 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     fun load() {
         _data.postValue(FeedModel(loading = true))
-        repository.getAllAsync(object : PostRepository.PostCallback<List<Post>> {
-            override fun onSuccess(result: List<Post>) {
-                _data.postValue(FeedModel(posts = result, empty = result.isEmpty()))
+        repository.getAllAsync(object : PostRepository.GetAllCallback {
+            override fun onSuccess(posts: List<Post>) {
+                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
+                _errorMessage.postValue(null)
             }
 
-            override fun onError(e: Exception) {
-                _data.postValue(FeedModel(error = true))
+            override fun onError(e: Throwable) {
+                _data.postValue(FeedModel(error = true, posts = _data.value?.posts ?: emptyList()))
+                _errorMessage.postValue("Failed to load posts: ${e.message}")
             }
         })
+    }
+
+    fun retryLoad() {
+        load()
+    }
+
+    fun clearError() {
+        _errorMessage.postValue(null)
+        _data.postValue(FeedModel(posts = _data.value?.posts ?: emptyList()))
     }
 
     private fun updatePostInList(updatedPost: Post) {
