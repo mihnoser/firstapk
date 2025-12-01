@@ -99,36 +99,32 @@ class FeedFragment : Fragment() {
             viewModel.load()
         }
 
-        viewModel.errorMessage.observe(viewLifecycleOwner) { errorMessage ->
-            errorMessage?.let { message ->
-                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-                    .setAction("Повторить") {
-                        viewModel.retryLoad()
-                    }
-                    .show()
-            }
-        }
 
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
-            binding.progress.isVisible = state.loading
             binding.empty.isVisible = state.empty
-            binding.errorGroup.isVisible = state.error
 
-            binding.swipeRefreshLayout.isRefreshing = state.loading
+        }
 
-            if (state.error && state.posts.isEmpty()) {
-                Snackbar.make(binding.root, "Ошибка загрузки данных", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("Повторить") {
-                        viewModel.retryLoad()
+        viewModel.state.observe(viewLifecycleOwner) { state ->
+            binding.progress.isVisible = state.loading
+            if (state.error) {
+                Snackbar.make(binding.root, R.string.error_load, Snackbar.LENGTH_SHORT)
+                    .setAction(R.string.retry) {
+                        viewModel.load()
                     }
                     .show()
             }
+            binding.swipeRefreshLayout.isRefreshing = state.refreshError
         }
 
-        binding.retry.setOnClickListener {
-            viewModel.retryLoad()
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            viewModel.refresh()
         }
+
+//        binding.retry.setOnClickListener {
+//            viewModel.retryLoad()
+//        }
 
         binding.add.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)

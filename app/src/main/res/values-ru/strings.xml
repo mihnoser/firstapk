@@ -25,4 +25,6 @@
     <string name="something_went_wrong">Что-то пошло не так</string>
     <string name="retry">Повторить</string>
     <string name="description_post_attachment" >Изображение к посту</string>
+    <string name="error_load">Ошибка загрузки</string>
+    <string name="error_refresh">Ошибка при обновлении</string>
 </resources>

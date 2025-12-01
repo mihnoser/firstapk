@@ -1,33 +1,17 @@
 package ru.netology.nmedia.repository
 
-import retrofit2.Response
+import androidx.lifecycle.LiveData
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
-    fun getAll(): List<Post>
-    fun likeById(id: Long): Post
-    fun unlikeById(id: Long): Post
-    fun shareById(id: Long): Post
-    fun removeById(id: Long)
-    fun save(post: Post): Post
+    val data: LiveData<List<Post>>
+    suspend fun getAllAsync()
+    suspend fun likeById(id: Long): Post
+    suspend fun shareById(id: Long): Post
+    suspend fun removeById(id: Long)
+    suspend fun save(post: Post): Post
 
-    fun getAllAsync(callback: GetAllCallback)
-    fun likeByIdAsync(id: Long, likedByMe: Boolean, callback: PostCallback<Post>)
-    fun shareByIdAsync(id: Long, callback: PostCallback<Post>)
-    fun removeByIdAsync(id: Long, callback: PostCallback<Unit>)
-    fun saveAsync(post: Post, callback: PostCallback<Post>)
-
-    interface PostCallback<T> {
-        fun onSuccess(result: T)
-        fun onError(e: Throwable)
-    }
-
-    interface GetAllCallback {
-        fun onSuccess(posts: List<Post>) {}
-        fun onError(e: Throwable)
-    }
-
-    fun handleError(response: Response<*>, defaultMessage: String = "Network error"): Throwable {
+    /*fun handleError(response: Response<*>, defaultMessage: String = "Network error"): Throwable {
         return when (response.code()) {
             400 -> RuntimeException("Bad request")
             401 -> RuntimeException("Unauthorized")
@@ -39,5 +23,5 @@ interface PostRepository {
             503 -> RuntimeException("Service unavailable")
             else -> RuntimeException("$defaultMessage: ${response.code()}")
         }
-    }
+    }*/
 }
