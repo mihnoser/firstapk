@@ -18,12 +18,24 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
     }
 
     override suspend fun likeById(id: Long): Post {
+        val posts = dao.getAll().value ?: emptyList()
+        val originalPostEntity = posts.find { it.id == id }
+        val wasLiked = originalPostEntity?.likeByMe ?: false
+
         try {
             dao.likeById(id)
-            val post = PostApi.service.likeById(id)
-            dao.insert(PostEntity.fromDto(post))
+
+            val post = if (wasLiked) {
+                PostApi.service.dislikeById(id)
+            } else {
+                PostApi.service.likeById(id)
+            }
+
             return post
         } catch (e: Exception) {
+            if (originalPostEntity != null) {
+                dao.insert(originalPostEntity)
+            }
             throw e
         }
     }
