@@ -18,9 +18,9 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
     }
 
     override suspend fun likeById(id: Long): Post {
-        val posts = dao.getAll().value ?: emptyList()
-        val originalPostEntity = posts.find { it.id == id }
-        val wasLiked = originalPostEntity?.likeByMe ?: false
+        val posts = data.value ?: emptyList()
+        val originalPost = posts.find { it.id == id }
+        val wasLiked = originalPost?.likedByMe ?: false
 
         try {
             dao.likeById(id)
@@ -32,30 +32,40 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
             }
 
             return post
+
         } catch (e: Exception) {
-            if (originalPostEntity != null) {
-                dao.insert(originalPostEntity)
-            }
+            dao.likeById(id)
             throw e
         }
     }
 
     override suspend fun shareById(id: Long): Post {
+        val posts = data.value ?: emptyList()
+        val originalPost = posts.find { it.id == id }
+
         try {
             dao.shareById(id)
             val post = PostApi.service.shareById(id)
-            dao.insert(PostEntity.fromDto(post))
             return post
         } catch (e: Exception) {
+            if (originalPost != null) {
+                dao.insert(PostEntity.fromDto(originalPost))
+            }
             throw e
         }
     }
 
     override suspend fun removeById(id: Long) {
+        val posts = data.value ?: emptyList()
+        val originalPost = posts.find { it.id == id }
+
         try {
             dao.removeById(id)
             PostApi.service.deleteById(id)
         } catch (e: Exception) {
+            if (originalPost != null) {
+                dao.insert(PostEntity.fromDto(originalPost))
+            }
             throw e
         }
     }
