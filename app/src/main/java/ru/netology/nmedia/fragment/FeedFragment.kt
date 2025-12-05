@@ -106,6 +106,10 @@ class FeedFragment : Fragment() {
 
         }
 
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            println(it)
+        }
+
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
             if (state.error) {

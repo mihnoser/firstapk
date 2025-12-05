@@ -47,6 +47,9 @@ interface PostApi {
     @POST("posts/{id}/shares")
     suspend fun shareById(@Path("id") id: Long): Post
 
+    @GET("posts/{id}/newer")
+    suspend fun getNewer(@Path("id") id: Long): List<Post>
+
     companion object {
         val service: PostApi by lazy {
             retrofit.create()
