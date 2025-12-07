@@ -29,7 +29,8 @@ private val empty = Post(
     likedByMe = false,
     shareByMe = false,
     views = 0,
-    video = null
+    video = null,
+    showed = true
 )
 
 class PostViewModel(application: Application): AndroidViewModel(application) {
@@ -111,9 +112,21 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             _state.value = FeedModelState(loading = true)
             try {
-                repository.getAllAsync()
+                repository.getAll()
                 _state.value = FeedModelState()
             } catch (_: Exception) {
+                _state.value = FeedModelState(error = true)
+            }
+        }
+    }
+
+    fun loadUnshowed() {
+        viewModelScope.launch {
+            try {
+                _state.value = FeedModelState(loading = true)
+                repository.getUnshowed()
+                _state.value = FeedModelState()
+            } catch (e: Exception) {
                 _state.value = FeedModelState(error = true)
             }
         }
@@ -123,7 +136,7 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         viewModelScope.launch {
             _state.value = FeedModelState(refreshError = true)
             try {
-                repository.getAllAsync()
+                repository.getAll()
                 _state.value = FeedModelState()
             } catch (_: Exception) {
                 _state.value = FeedModelState(error = true)

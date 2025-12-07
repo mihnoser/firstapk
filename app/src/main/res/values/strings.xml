@@ -26,4 +26,5 @@
     <string name="description_post_attachment">Posts image</string>
     <string name="error_load">Loading ERROR!</string>
     <string name="error_refresh">Refresh ERROR!</string>
+    <string name="new_posts">New Post</string>
 </resources>

@@ -60,21 +60,21 @@ class PostViewHolder(
             share.isChecked = post.shareByMe
             share.text = formatNumber(post.shared.toLong())
 
-            if (post.attachment != null && post.attachment.type == AttachmentType.IMAGE) {
-                attachmentContainer.visibility = View.VISIBLE
-
-                val imageUrl = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
-                attachmentImage.load(imageUrl)
-
-                post.attachment.description?.let { description ->
-                    attachmentDescription.visibility = View.VISIBLE
-                    attachmentDescription.text = description
-                } ?: run {
-                    attachmentDescription.visibility = View.GONE
-                }
-            } else {
-                attachmentContainer.visibility = View.GONE
-            }
+//            if (post.attachment != null && post.attachment.type == AttachmentType.IMAGE) {
+//                attachmentContainer.visibility = View.VISIBLE
+//
+//                val imageUrl = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
+//                attachmentImage.load(imageUrl)
+//
+//                post.attachment.description?.let { description ->
+//                    attachmentDescription.visibility = View.VISIBLE
+//                    attachmentDescription.text = description
+//                } ?: run {
+//                    attachmentDescription.visibility = View.GONE
+//                }
+//            } else {
+//                attachmentContainer.visibility = View.GONE
+//            }
 
             if (!post.video.isNullOrEmpty()) {
                 videoContainer.visibility = View.VISIBLE

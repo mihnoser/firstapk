@@ -107,7 +107,8 @@ class FeedFragment : Fragment() {
         }
 
         viewModel.newerCount.observe(viewLifecycleOwner) {
-            println(it)
+            state ->
+            if (state > 0) binding.newerPostAdd.isVisible = true
         }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
@@ -132,6 +133,12 @@ class FeedFragment : Fragment() {
 
         binding.add.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
+        }
+
+        binding.newerPostAdd.setOnClickListener {
+            viewModel.loadUnshowed()
+            binding.list.smoothScrollToPosition(0)
+            binding.newerPostAdd.isVisible = false
         }
 
         return binding.root

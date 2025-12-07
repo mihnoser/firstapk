@@ -6,11 +6,12 @@ import ru.netology.nmedia.dto.Post
 interface PostRepository {
     val data: Flow<List<Post>>
     fun getNewer(id: Long): Flow<Int>
-    suspend fun getAllAsync()
+    suspend fun getAll()
     suspend fun likeById(id: Long): Post
     suspend fun shareById(id: Long): Post
     suspend fun removeById(id: Long)
     suspend fun save(post: Post): Post
+    suspend fun getUnshowed()
 
     /*fun handleError(response: Response<*>, defaultMessage: String = "Network error"): Throwable {
         return when (response.code()) {

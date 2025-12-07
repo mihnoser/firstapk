@@ -52,6 +52,17 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/newerPostAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/new_posts"
+        android:visibility="invisible"
+        android:text="New posts"
+        app:icon="@drawable/ic_baseline_arrow_upward_24"/>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/add"
         android:layout_width="wrap_content"

@@ -12,13 +12,16 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
 import ru.netology.nmedia.error.ApiError
 import ru.netology.nmedia.error.AppError
+import ru.netology.nmedia.error.NetworkError
+import ru.netology.nmedia.error.UnknownError
+import java.io.IOException
 
 class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
     override val data: Flow<List<Post>> = dao.getAll()
         .map { posts -> posts.map { it.toDto() } }
         .catch { e -> throw AppError.from(e) }
 
-    override suspend fun getAllAsync() {
+    override suspend fun getAll() {
         try {
             val posts = PostApi.service.getAll()
             dao.insert(posts.map(PostEntity::fromDto))
@@ -97,11 +100,20 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
     override fun getNewer(id: Long): Flow<Int> = flow {
         while (true) {
-            delay(10_000)
+            delay(10_000L)
             val newerPosts = PostApi.service.getNewer(id)
             dao.insert(newerPosts.map(PostEntity::fromDto))
             emit(newerPosts.size)
         }
     }.catch { e -> throw AppError.from(e) }
 
+    override suspend fun getUnshowed() {
+        try {
+            dao.showAll()
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
 }

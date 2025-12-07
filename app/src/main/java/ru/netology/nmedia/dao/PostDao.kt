@@ -49,4 +49,17 @@ interface PostDao {
 
     @Query("DELETE FROM PostEntity WHERE id=:id")
     suspend fun removeById(id: Long)
+
+    @Query("UPDATE PostEntity SET showed=1 WHERE showed=0")
+    suspend fun showAll()
+
+
+    @Query("SELECT * FROM PostEntity WHERE showed=0 ORDER BY id DESC")
+    fun getUnshowed(): Flow<List<PostEntity>>
+
+    @Query("SELECT COUNT(*) == 0 FROM PostEntity")
+    suspend fun isEmpty(): Boolean
+
+    @Query("SELECT COUNT(*) FROM PostEntity")
+    suspend fun count(): Int
 }
