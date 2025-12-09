@@ -10,9 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
-import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 
 
@@ -54,7 +52,7 @@ class PostViewHolder(
 
             avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
 
-            like.isChecked = post.likedByMe
+            like.isChecked = post.likeByMe
             like.text = formatNumber(post.likes.toLong())
 
             share.isChecked = post.shareByMe

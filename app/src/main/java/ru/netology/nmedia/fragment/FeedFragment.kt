@@ -99,15 +99,12 @@ class FeedFragment : Fragment() {
             viewModel.load()
         }
 
-
         viewModel.data.observe(viewLifecycleOwner) { state ->
             adapter.submitList(state.posts)
             binding.empty.isVisible = state.empty
-
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) {
-            state ->
+        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
             if (state > 0) binding.newerPostAdd.isVisible = true
         }
 
@@ -127,18 +124,17 @@ class FeedFragment : Fragment() {
             viewModel.refresh()
         }
 
-//        binding.retry.setOnClickListener {
-//            viewModel.retryLoad()
-//        }
-
         binding.add.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
         }
 
         binding.newerPostAdd.setOnClickListener {
             viewModel.loadUnshowed()
-            binding.list.smoothScrollToPosition(0)
             binding.newerPostAdd.isVisible = false
+
+            binding.list.postDelayed({
+                binding.list.smoothScrollToPosition(0)
+            }, 300)
         }
 
         return binding.root
