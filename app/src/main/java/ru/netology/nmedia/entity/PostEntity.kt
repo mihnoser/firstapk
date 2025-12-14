@@ -1,7 +1,10 @@
 package ru.netology.nmedia.entity
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import ru.netology.nmedia.dto.Attachment
+import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
 
 @Entity
@@ -18,63 +21,71 @@ data class PostEntity(
     val shareByMe: Boolean = false,
     val views: Int = 7,
     val video: String? = null,
+    @Embedded
+    var attachment: AttachmentEmbeddable?,
     val showed: Boolean = true
-)
-//    fun toDto(): Post = Post(
-//        id = id,
-//        author = author,
-//        authorAvatar = authorAvatar,
-//        published = published,
-//        content = content,
-//        likes = likes,
-//        shared = shared,
-//        likedByMe = likeByMe,
-//        shareByMe = shareByMe,
-//        views = views,
-//        video = video
-//    )
-//
-//    companion object {
-//        fun fromDto(post: Post): PostEntity = with(post) {
-//            PostEntity(
-//                id = id,
-//                author = author,
-//                authorAvatar = authorAvatar,
-//                published = published,
-//                content = content,
-//                likes = likes,
-//                shared = shared,
-//                likeByMe = likedByMe,
-//                shareByMe = shareByMe,
-//                views = views,
-//                video = video
-//            )
-//        }
-//    }
-//}
-//
-//fun Post.toEntity(): PostEntity = PostEntity(
-//    id = id,
-//    author = author,
-//    authorAvatar = authorAvatar,
-//    published = published,
-//    content = content,
-//    likes = likes,
-//    shared = shared,
-//    likeByMe = likedByMe,
-//    shareByMe = shareByMe,
-//    views = views,
-//    video = video
-//)
-{
-    fun toDto() = Post(id, author, authorAvatar, published, content, likes, shared, likeByMe, shareByMe, views, video, showed)
+) {
+    fun toDto() = Post(
+        id = id,
+        author = author,
+        authorAvatar = authorAvatar,
+        published = published,
+        content = content,
+        likes = likes,
+        shared = shared,
+        likeByMe = likeByMe,
+        shareByMe = shareByMe,
+        views = views,
+        video = video,
+        attachment = attachment?.toDto(),
+        showed = showed
+    )
 
     companion object {
-    fun fromDto(dto: Post) =
-        PostEntity(dto.id, dto.author, dto.authorAvatar, dto.published,dto.content,  dto.likes, dto.shared, dto.likeByMe, dto.shareByMe, dto.views, dto.video, dto.showed)
-
+        fun fromDto(dto: Post) = PostEntity(
+            id = dto.id,
+            author = dto.author,
+            authorAvatar = dto.authorAvatar,
+            published = dto.published,
+            content = dto.content,
+            likes = dto.likes,
+            shared = dto.shared,
+            likeByMe = dto.likeByMe,
+            shareByMe = dto.shareByMe,
+            views = dto.views,
+            video = dto.video,
+            attachment = AttachmentEmbeddable.fromDto(dto.attachment),
+            showed = dto.showed
+        )
+    }
 }
+
+data class AttachmentEmbeddable(
+    var url: String,
+    var description: String? = null,
+    var type: String
+) {
+    fun toDto(): Attachment? {
+        return try {
+            val attachmentType = enumValueOf<AttachmentType>(type)
+            Attachment(url, attachmentType, description)
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
+
+    companion object {
+        fun fromDto(dto: Attachment?) = dto?.let {
+            AttachmentEmbeddable(
+                url = it.url,
+                description = it.description,
+                type = it.type.name
+            )
+        }
+    }
 }
 
-    fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
-    fun List<Post>.toEntity(): List<PostEntity> = map(PostEntity::fromDto)
+fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
+fun List<Post>.toEntity(): List<PostEntity> = map {
+    PostEntity.fromDto(it.copy(showed = true))
+}

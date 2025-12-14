@@ -1,6 +1,8 @@
 package ru.netology.nmedia.repository
 
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.dto.Media
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 
 interface PostRepository {
@@ -12,6 +14,8 @@ interface PostRepository {
     suspend fun removeById(id: Long)
     suspend fun save(post: Post): Post
     suspend fun getUnshowed()
+    suspend fun saveWithAttachment(post: Post, upload: MediaUpload)
+    suspend fun upload(upload: MediaUpload): Media
 
     /*fun handleError(response: Response<*>, defaultMessage: String = "Network error"): Throwable {
         return when (response.code()) {

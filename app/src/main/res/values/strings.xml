@@ -6,6 +6,8 @@
     <string name="description_post_like">Like</string>
     <string name="description_post_share">Share</string>
     <string name="description_post_save">Save post</string>
+    <string name="save">Save post</string>
+    <string name="post_hint">Input post text</string>
     <string name="menu_remove">Remove</string>
     <string name="post_text">Post Text</string>
     <string name="edit_text">Edit Message</string>
@@ -27,4 +29,8 @@
     <string name="error_load">Loading ERROR!</string>
     <string name="error_refresh">Refresh ERROR!</string>
     <string name="new_posts">New Post</string>
+    <string name="description_select_photo">Select photo</string>
+    <string name="description_take_photo">Take photo</string>
+    <string name="remove">Remove</string>
+    <string name="description_photo">Photo</string>
 </resources>

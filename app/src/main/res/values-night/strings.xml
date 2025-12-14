@@ -12,4 +12,5 @@
     <string name="retry">Retry</string>
     <string name="description_post_attachment" >Posts pictures</string>
     <string name="new_posts">New Post</string>
+    <string name="description_select_photo" />
 </resources>

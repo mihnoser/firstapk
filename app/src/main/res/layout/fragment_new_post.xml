@@ -7,29 +7,95 @@
     android:layout_height="match_parent"
     tools:context=".fragment.NewPostFragment">
 
-    <EditText
-        android:id="@+id/edit"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/transparent"
-        android:inputType="textMultiLine"
-        android:padding="@dimen/common_spacing"
-        android:layout_marginBottom="80dp"
-        android:gravity="start|top" />
+        android:orientation="vertical">
 
-    <com.google.android.material.bottomappbar.BottomAppBar
-        android:id="@+id/bottomAppBar"
-        style="@style/Widget.Material3.BottomAppBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom" />
+        <ScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/description_post_save"
-        app:layout_anchor="@id/bottomAppBar"
-        app:srcCompat="@drawable/ic_save_24" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/edit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:hint="@string/post_hint"
+                    android:inputType="textMultiLine"
+                    android:padding="@dimen/common_spacing" />
+
+                <FrameLayout
+                    android:id="@+id/photoContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:id="@+id/photo"
+                        android:layout_width="match_parent"
+                        android:layout_height="200dp"
+                        android:scaleType="centerCrop"
+                        android:contentDescription="@string/description_photo" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/removePhoto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top|end"
+                        android:layout_margin="@dimen/common_spacing"
+                        android:text="@string/remove" />
+                </FrameLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/divider_color" />
+
+        <LinearLayout
+            android:id="@+id/buttonPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/pickPhoto"
+                style="@style/Widget.AppTheme.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_select_photo"
+                android:padding="@dimen/common_spacing"
+                app:icon="@drawable/ic_photo_24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/takePhoto"
+                style="@style/Widget.AppTheme.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/description_take_photo"
+                android:padding="@dimen/common_spacing"
+                app:icon="@drawable/ic_camera_24dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/save"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/save"
+                android:icon="@drawable/ic_save_24"
+                app:iconGravity="textStart"
+                android:layout_marginStart="@dimen/common_spacing" />
+        </LinearLayout>
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

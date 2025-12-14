@@ -12,6 +12,6 @@ data class Post(
     val shareByMe: Boolean = false,
     val views: Int = 0,
     val video: String? = null,
-//    val attachment: Attachment? = null,
+    val attachment: Attachment? = null,
     val showed: Boolean = false
 )

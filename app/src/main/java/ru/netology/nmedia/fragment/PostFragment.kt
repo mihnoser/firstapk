@@ -29,7 +29,7 @@ class PostFragment : Fragment() {
         EditPostContract
     ) { result ->
         result?.let { content ->
-            viewModel.save(content)
+            viewModel.save()
         }
     }
 

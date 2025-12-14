@@ -14,6 +14,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
+import ru.netology.nmedia.activity.AppActivity.Companion.textArg
 import ru.netology.nmedia.activity.EditPostContract
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
@@ -33,7 +34,7 @@ class FeedFragment : Fragment() {
         EditPostContract
     ) { result ->
         result?.let { content ->
-            viewModel.save(content)
+            viewModel.save()
         }
     }
 
@@ -43,7 +44,7 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        binding = FragmentFeedBinding.inflate(inflater, container, false)
+       val binding = FragmentFeedBinding.inflate(inflater, container, false)
 
         val adapter = PostAdapter(object : OnInteractionListener {
 
@@ -90,6 +91,13 @@ class FeedFragment : Fragment() {
                         ).show()
                     }
                 }
+            }
+
+            fun onPreviewImage(post: Post) {
+                findNavController().navigate(R.id.action_feedFragment_to_imagePreviewFragment,
+                    Bundle().apply {
+                        textArg = post.attachment?.url
+                    })
             }
 
         })
