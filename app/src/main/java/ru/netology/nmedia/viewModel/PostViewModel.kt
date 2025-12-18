@@ -26,6 +26,7 @@ import java.io.File
 private val empty = Post(
     id = 0,
     author = "",
+    authorAvatar = "",
     published = 0,
     content = "",
     likes = 0,
@@ -34,6 +35,7 @@ private val empty = Post(
     shareByMe = false,
     views = 0,
     video = null,
+    attachment = null,
     showed = true
 )
 

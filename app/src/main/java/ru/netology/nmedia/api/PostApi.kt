@@ -18,9 +18,6 @@ interface PostApi {
     @GET("posts/{id}")
     suspend fun getById(@Path("id") id: Long): Post
 
-    @POST("posts")
-    suspend fun save(@Body post: Post): Post
-
     @DELETE("posts/{id}")
     suspend fun deleteById(@Path("id") id: Long)
 
@@ -40,4 +37,6 @@ interface PostApi {
     @POST("media")
     suspend fun upload(@Part media: MultipartBody.Part): Media
 
+    @POST("posts")
+    suspend fun save(@Body post: Post): Post
 }

@@ -9,6 +9,22 @@ android {
     namespace = 'ru.netology.nmedia'
     compileSdk = 36
 
+    packagingOptions {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/DEPENDENCIES'
+        exclude 'META-INF/DEPENDENCIES.txt'
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/*.kotlin_module'
+        exclude 'META-INF/*.version'
+        exclude 'META-INF/proguard/*'
+        exclude 'META-INF/services/*'
+        exclude 'META-INF/versions/*'
+    }
+
     defaultConfig {
         applicationId = "ru.netology.nmedia"
         minSdk = 24
@@ -50,6 +66,8 @@ dependencies {
 
     implementation 'com.google.android.gms:play-services-cast-framework:22.2.0'
     implementation 'androidx.glance:glance:1.1.1'
+    implementation 'com.google.firebase:firebase-appdistribution-gradle:5.2.0'
+    implementation 'androidx.room:room-ktx:2.8.4'
     def desugar_version = "2.0.4"
     def nav_version = "2.8.6"
     def activity_ktx_version = "1.10.1"

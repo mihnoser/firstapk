@@ -25,6 +25,7 @@ data class PostEntity(
     var attachment: AttachmentEmbeddable?,
     val showed: Boolean = true
 ) {
+
     fun toDto() = Post(
         id = id,
         author = author,
@@ -37,9 +38,30 @@ data class PostEntity(
         shareByMe = shareByMe,
         views = views,
         video = video,
-        attachment = attachment?.toDto(),
+        attachment = attachment?.let {
+            println("DEBUG PostEntity.toDto(): преобразуем attachment: $it")
+            val result = it.toDto()
+            println("DEBUG PostEntity.toDto(): результат преобразования: $result")
+            result
+        },
         showed = showed
     )
+
+//    fun toDto() = Post(
+//        id = id,
+//        author = author,
+//        authorAvatar = authorAvatar,
+//        published = published,
+//        content = content,
+//        likes = likes,
+//        shared = shared,
+//        likeByMe = likeByMe,
+//        shareByMe = shareByMe,
+//        views = views,
+//        video = video,
+//        attachment = attachment?.toDto(),
+//        showed = showed
+//    )
 
     companion object {
         fun fromDto(dto: Post) = PostEntity(
@@ -66,16 +88,20 @@ data class AttachmentEmbeddable(
     var type: String
 ) {
     fun toDto(): Attachment? {
+        println("DEBUG AttachmentEmbeddable.toDto(): url=$url, type=$type, description=$description")
         return try {
             val attachmentType = enumValueOf<AttachmentType>(type)
+            println("DEBUG: AttachmentType успешно создан: $attachmentType")
             Attachment(url, attachmentType, description)
         } catch (e: IllegalArgumentException) {
+            println("DEBUG: ОШИБКА преобразования типа '$type': ${e.message}")
             null
         }
     }
 
     companion object {
         fun fromDto(dto: Attachment?) = dto?.let {
+            println("DEBUG AttachmentEmbeddable.fromDto(): url=${it.url}, type=${it.type.name}")
             AttachmentEmbeddable(
                 url = it.url,
                 description = it.description,
@@ -84,6 +110,31 @@ data class AttachmentEmbeddable(
         }
     }
 }
+
+//data class AttachmentEmbeddable(
+//    var url: String,
+//    var description: String? = null,
+//    var type: String
+//) {
+//    fun toDto(): Attachment? {
+//        return try {
+//            val attachmentType = enumValueOf<AttachmentType>(type)
+//            Attachment(url, attachmentType, description)
+//        } catch (e: IllegalArgumentException) {
+//            null
+//        }
+//    }
+//
+//    companion object {
+//        fun fromDto(dto: Attachment?) = dto?.let {
+//            AttachmentEmbeddable(
+//                url = it.url,
+//                description = it.description,
+//                type = it.type.name
+//            )
+//        }
+//    }
+//}
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
 fun List<Post>.toEntity(): List<PostEntity> = map {
