@@ -36,4 +36,10 @@
         <item name="iconTint">@color/monochrom_color</item>
     </style>
 
+    <style name="Widget.AppTheme.AppBar" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+        <item name="iconTint">@color/white</item>
+        <item name="android:minWidth">@dimen/icon_button_min_size</item>
+        <item name="android:minHeight">@dimen/icon_button_min_size</item>
+    </style>
+
 </resources>

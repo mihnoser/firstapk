@@ -10,7 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
+import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.view.load
 import ru.netology.nmedia.view.loadCircleCrop
 
 
@@ -21,6 +23,7 @@ interface OnInteractionListener {
     fun onShare(post: Post)
     fun onPlayVideo(post: Post)
     fun onOpen(post: Post)
+    fun onPreviewImage(post : Post){}
 }
 
 class PostAdapter(
@@ -58,21 +61,21 @@ class PostViewHolder(
             share.isChecked = post.shareByMe
             share.text = formatNumber(post.shared.toLong())
 
-//            if (post.attachment != null && post.attachment.type == AttachmentType.IMAGE) {
-//                attachmentContainer.visibility = View.VISIBLE
-//
-//                val imageUrl = "${BuildConfig.BASE_URL}/images/${post.attachment.url}"
-//                attachmentImage.load(imageUrl)
-//
-//                post.attachment.description?.let { description ->
-//                    attachmentDescription.visibility = View.VISIBLE
-//                    attachmentDescription.text = description
-//                } ?: run {
-//                    attachmentDescription.visibility = View.GONE
-//                }
-//            } else {
-//                attachmentContainer.visibility = View.GONE
-//            }
+            if (post.attachment != null && post.attachment.type == AttachmentType.IMAGE) {
+                attachmentContainer.visibility = View.VISIBLE
+
+                val imageUrl = "${BuildConfig.BASE_URL}/media/${post.attachment.url}"
+                attachmentImage.load(imageUrl)
+
+                post.attachment.description?.let { description ->
+                    attachmentDescription.visibility = View.VISIBLE
+                    attachmentDescription.text = description
+                } ?: run {
+                    attachmentDescription.visibility = View.GONE
+                }
+            } else {
+                attachmentContainer.visibility = View.GONE
+            }
 
             if (!post.video.isNullOrEmpty()) {
                 videoContainer.visibility = View.VISIBLE
@@ -112,6 +115,10 @@ class PostViewHolder(
                         }
                     }
                 }.show()
+            }
+
+            attachmentImage.setOnClickListener {
+                onInteractionListener.onPreviewImage(post)
             }
 
             root.setOnClickListener {

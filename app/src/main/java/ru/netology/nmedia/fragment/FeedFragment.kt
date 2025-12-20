@@ -93,7 +93,7 @@ class FeedFragment : Fragment() {
                 }
             }
 
-            fun onPreviewImage(post: Post) {
+            override fun onPreviewImage(post: Post) {
                 findNavController().navigate(R.id.action_feedFragment_to_imagePreviewFragment,
                     Bundle().apply {
                         textArg = post.attachment?.url
