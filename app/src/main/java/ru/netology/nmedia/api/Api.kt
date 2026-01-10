@@ -18,7 +18,7 @@ private val client = OkHttpClient.Builder()
     .connectTimeout(30, TimeUnit.SECONDS)
     .build()
 
-private const val BASE_URL = "http://10.0.2.2:9999/api/slow/"
+private const val BASE_URL = "http://10.0.2.2:9999/api/"
 
 private val loggingRetrofit = Retrofit.Builder()
     .client(loggingClient)

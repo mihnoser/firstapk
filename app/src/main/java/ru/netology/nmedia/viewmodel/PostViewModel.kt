@@ -1,4 +1,4 @@
-package ru.netology.nmedia.viewModel
+package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import android.net.Uri
@@ -10,8 +10,10 @@ import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
@@ -36,20 +38,34 @@ private val empty = Post(
     views = 0,
     video = null,
     attachment = null,
-    showed = true
+    showed = true,
+    authorId = 0
 )
 
 private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application): AndroidViewModel(application) {
 
+    private val authState = AppAuth.getInstance().authStateFlow.asLiveData(Dispatchers.Default)
+
     private val repository: PostRepository = PostRepositoryNetwork(
         AppDb.getInstance(application).postDao()
     )
-    val data: LiveData<FeedModel> = repository.data.map { list : List<Post> ->
-        FeedModel(list, list.isEmpty()) }
-        .catch {it.printStackTrace() }
-        .asLiveData(Dispatchers.Default)
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            repository.data
+                .map{ posts ->
+                    println("DEBUG: myId = $myId")
+                    posts.forEach { post ->
+                        println("DEBUG: post.id = ${post.id}, post.authorId = ${post.authorId}, ownedByMe = ${post.authorId == myId}")
+                    }
+                    FeedModel(
+                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+                        posts.isEmpty()
+                    )
+                }
+        }.asLiveData(Dispatchers.Default)
 
     val newerCount = data.switchMap {
         repository.getNewer(it.posts.firstOrNull()?.id ?: 0)
@@ -74,7 +90,16 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     init {
         load()
+
+        authState.observeForever { authState ->
+            if (authState.id != 0L && authState.token != null) {
+                load()
+            }
+        }
+
     }
+
+
 
     fun likeById(id: Long) {
         viewModelScope.launch {
@@ -185,6 +210,15 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     fun changePhoto(uri: Uri?, file: File?) {
         _photo.value = PhotoModel(uri, file)
+    }
+
+    fun updateUser(login : String, pass : String)  =  viewModelScope.launch {
+        try {
+            val account = repository.updateUser(login, pass)
+            AppAuth.getInstance().setAuth(account.id, account.token)
+        } catch (e: Exception) {
+            _state.value = FeedModelState(error = true)
+        }
     }
 
 }

@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
+import ru.netology.nmedia.R.id.owned
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Post
@@ -52,6 +53,10 @@ class PostViewHolder(
             author.text = post.author
             published.text = post.published.toString()
             content.text = post.content
+
+            menu.visibility = if (post.ownedByMe) View.VISIBLE else View.INVISIBLE
+
+
 
             avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
 
@@ -101,6 +106,7 @@ class PostViewHolder(
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.menu_post)
+                    menu.setGroupVisible(owned, post.ownedByMe)
                     setOnMenuItemClickListener { item ->
                         when (item.itemId) {
                             R.id.remove -> {
@@ -111,6 +117,7 @@ class PostViewHolder(
                                 onInteractionListener.onEdit(post)
                                 true
                             }
+
                             else -> false
                         }
                     }
@@ -125,6 +132,7 @@ class PostViewHolder(
                 onInteractionListener.onOpen(post)
             }
         }
+
     }
 }
 

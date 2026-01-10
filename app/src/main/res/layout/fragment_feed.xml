@@ -73,4 +73,5 @@
         android:contentDescription="Add post"
         app:srcCompat="@drawable/ic_add_24" />
 
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

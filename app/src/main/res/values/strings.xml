@@ -33,4 +33,12 @@
     <string name="description_take_photo">Take photo</string>
     <string name="remove">Remove</string>
     <string name="description_photo">Photo</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="sign_out">Sign Out</string>
+    <string name="prompt_login">Login</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="guest_entrance">Guest entrance</string>
+    <string name="welcome">Welcome account</string>
 </resources>

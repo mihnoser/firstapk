@@ -13,5 +13,7 @@ data class Post(
     val views: Int = 0,
     val video: String? = null,
     val attachment: Attachment? = null,
-    val showed: Boolean = false
+    val showed: Boolean = false,
+    val authorId: Long = 0,
+    val ownedByMe: Boolean = false
 )

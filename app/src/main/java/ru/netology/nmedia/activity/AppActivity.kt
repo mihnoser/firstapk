@@ -5,26 +5,33 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
 import ru.netology.nmedia.R
-import ru.netology.nmedia.databinding.ActivityAppBinding
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.util.StringArg
+import ru.netology.nmedia.viewmodel.AuthViewModel
 
 
-class AppActivity : AppCompatActivity() {
+class AppActivity : AppCompatActivity(R.layout.activity_app) {
+
+    private val viewModel: AuthViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityAppBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
-        checkGoogleApiAvailability()
-        requestNotificationsPermission()
+        setSupportActionBar(findViewById(R.id.toolbar))
+
+        AppAuth.initApp(applicationContext)
+        println("DEBUG: AppAuth initialized, authState = ${AppAuth.getInstance().authStateFlow.value}")
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -32,21 +39,92 @@ class AppActivity : AppCompatActivity() {
             }
 
             val text = it.getStringExtra(Intent.EXTRA_TEXT)
-            if (text.isNullOrBlank()) {
-                Snackbar.make(binding.root, R.string.error_empty_content, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok) {
-                        finish()
-                    }
-                    .show()
+            if (text?.isNotBlank() != true) {
                 return@let
             }
 
-            findNavController(R.id.nav_host_fragment).navigate(
-                R.id.action_feedFragment_to_newPostFragment,
-                Bundle().apply {
-                    textArg = text
-                }
-            )
+            intent.removeExtra(Intent.EXTRA_TEXT)
+            findNavController(R.id.nav_host_fragment)
+                .navigate(
+                    R.id.action_feedFragment_to_newPostFragment,
+                    Bundle().apply {
+                        textArg = text
+                    }
+                )
+        }
+
+        viewModel.authenticated.observe(this) { authenticated ->
+            invalidateOptionsMenu()
+        }
+
+        viewModel.data.observe(this){
+            invalidateOptionsMenu()
+            if (it.id == 0L) {
+                Toast.makeText(this@AppActivity,getString(R.string.guest_entrance), Toast.LENGTH_LONG)
+                    .show()
+            } else {
+                val welcome = getString(R.string.welcome)
+                Toast.makeText(this@AppActivity,"$welcome ${it.id}", Toast.LENGTH_LONG)
+                    .show()
+            }
+        }
+
+        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                println("some stuff happened: ${task.exception}")
+                return@addOnCompleteListener
+            }
+
+            val token = task.result
+            println(token)
+        }
+
+        checkGoogleApiAvailability()
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+
+        val authState = AppAuth.getInstance().authStateFlow.value
+        val authenticated = authState.id != 0L
+        println("DEBUG: onCreateOptionsMenu - authState.id = ${authState.id}, authenticated = $authenticated")
+        println("DEBUG: AuthViewModel.authenticated.value = ${viewModel.authenticated.value}")
+
+        menu.let {
+            it.setGroupVisible(R.id.unauthenticated, !authenticated)
+            it.setGroupVisible(R.id.authenticated, authenticated)
+        }
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.signin -> {
+                println("DEBUG: Sign in clicked")
+                findNavController(R.id.nav_host_fragment)
+                    .navigate(R.id.action_feedFragment_to_loginFragment)
+                true
+            }
+            R.id.signup -> {
+                true
+            }
+            R.id.signout -> {
+                println("DEBUG: Sign out clicked")
+                AppAuth.getInstance().removeAuth()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

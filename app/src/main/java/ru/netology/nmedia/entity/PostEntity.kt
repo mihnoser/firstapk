@@ -23,7 +23,9 @@ data class PostEntity(
     val video: String? = null,
     @Embedded
     var attachment: AttachmentEmbeddable?,
-    val showed: Boolean = true
+    val showed: Boolean = true,
+    val authorId: Long,
+    val ownedByMe: Boolean = false
 ) {
 
     fun toDto() = Post(
@@ -44,7 +46,9 @@ data class PostEntity(
             println("DEBUG PostEntity.toDto(): результат преобразования: $result")
             result
         },
-        showed = showed
+        showed = showed,
+        authorId = authorId,
+        ownedByMe = ownedByMe
     )
 
 //    fun toDto() = Post(
@@ -77,7 +81,9 @@ data class PostEntity(
             views = dto.views,
             video = dto.video,
             attachment = AttachmentEmbeddable.fromDto(dto.attachment),
-            showed = dto.showed
+            showed = dto.showed,
+            authorId = dto.authorId,
+            ownedByMe = dto.ownedByMe
         )
     }
 }
