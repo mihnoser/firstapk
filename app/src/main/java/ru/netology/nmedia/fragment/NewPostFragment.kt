@@ -120,6 +120,14 @@ class NewPostFragment : Fragment() {
             viewModel.changePhoto(null, null)
         }
 
+        viewModel.edited.observe(viewLifecycleOwner) { post ->
+            if (post.id != 0L) {
+                binding.edit.setText(post.content)
+                binding.edit.requestFocus()
+                viewModel.cancelEdit()
+            }
+        }
+
         viewModel.postCreated.observe(viewLifecycleOwner) {
             findNavController().navigateUp()
         }
@@ -139,6 +147,7 @@ class NewPostFragment : Fragment() {
 
     override fun onDestroyView() {
         fragmentBinding = null
+        viewModel.cancelEdit()
         super.onDestroyView()
     }
 }

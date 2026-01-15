@@ -21,7 +21,7 @@ import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
 
-class AppActivity : AppCompatActivity(R.layout.activity_app) {
+class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
 
     private val viewModel: AuthViewModel by viewModels()
 

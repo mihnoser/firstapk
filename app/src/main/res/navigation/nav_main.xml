@@ -39,6 +39,6 @@
         android:label="PostFragment" />
     <fragment
         android:id="@+id/loginFragment"
-        android:name="ru.netology.nmedia.activity.LoginFragment"
+        android:name="ru.netology.nmedia.fragment.LoginFragment"
         android:label="LoginFragment" />
 </navigation>

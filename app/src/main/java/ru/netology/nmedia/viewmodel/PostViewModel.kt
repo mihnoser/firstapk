@@ -56,12 +56,9 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
         .flatMapLatest { (myId, _) ->
             repository.data
                 .map{ posts ->
-                    println("DEBUG: myId = $myId")
-                    posts.forEach { post ->
-                        println("DEBUG: post.id = ${post.id}, post.authorId = ${post.authorId}, ownedByMe = ${post.authorId == myId}")
-                    }
+                    val sortedPosts = posts.sortedByDescending { it.id }
                     FeedModel(
-                        posts.map { it.copy(ownedByMe = it.authorId == myId) },
+                        sortedPosts.map { it.copy(ownedByMe = it.authorId == myId) },
                         posts.isEmpty()
                     )
                 }
@@ -202,6 +199,7 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
 
     fun edit(post: Post) {
         edited.value = post
+        _photo.value = noPhoto
     }
 
     fun cancelEdit() {

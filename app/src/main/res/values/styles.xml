@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+
+
     <style name="Widget.AppTheme.Like.CheckBox" parent="Widget.Material3.CompoundButton.CheckBox">
         <item name="buttonTint">@color/like_color</item>
     </style>
@@ -37,7 +40,7 @@
     </style>
 
     <style name="Widget.AppTheme.AppBar" parent="Widget.MaterialComponents.Button.TextButton.Icon">
-        <item name="iconTint">@color/white</item>
+        <item name="iconTint">@color/divider_color</item>
         <item name="android:minWidth">@dimen/icon_button_min_size</item>
         <item name="android:minHeight">@dimen/icon_button_min_size</item>
     </style>
