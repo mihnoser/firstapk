@@ -104,28 +104,8 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
     override suspend fun save(post: Post): Post {
         try {
-            val postWithId = if (post.id == 0L) {
-                // Создание нового поста
-                Api.service.create(post)
-            } else {
-                // Обновление существующего поста
-                // Убедитесь, что передаете только изменяемые поля
-                val postToUpdate = post.copy(
-                    // Может потребоваться сбросить некоторые поля
-                    likes = post.likes,
-                    likeByMe = post.likeByMe,
-                    shared = post.shared,
-                    views = post.views
-                )
-                Api.service.update(post.id, postToUpdate)
-            }
-
-            // Удаляем старую версию из БД и вставляем новую
-            if (post.id != 0L) {
-                dao.removeById(post.id)
-            }
+            val postWithId = Api.service.save(post)
             dao.insert(PostEntity.fromDto(postWithId.copy(showed = true)))
-
             return postWithId
         } catch (e: Exception) {
             e.printStackTrace()
