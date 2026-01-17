@@ -64,16 +64,34 @@ class NewPostFragment : Fragment() {
             false
         )
 
+//        binding.save.setOnClickListener {
+//            viewModel.changeContent(binding.edit.text.toString())
+//            viewModel.save()
+//            AndroidUtils.hideKeyboard(requireView())
+//        }
         binding.save.setOnClickListener {
-            viewModel.changeContent(binding.edit.text.toString())
-            viewModel.save()
-            AndroidUtils.hideKeyboard(requireView())
+            fragmentBinding?.let {
+                viewModel.changeContent(binding.edit.text.toString())
+                viewModel.save()
+                AndroidUtils.hideKeyboard(requireView())
+            }
         }
 
         fragmentBinding = binding
 
-        arguments?.textArg
-            ?.let(binding.edit::setText)
+        viewModel.edited.observe(viewLifecycleOwner) { post ->
+            if (post.id != 0L) {
+                binding.edit.setText(post.content)
+                binding.edit.requestFocus()
+//                viewModel.cancelEdit()
+            }
+        }
+
+        if (binding.edit.text.isNullOrEmpty()) {
+            binding.edit.requestFocus()
+        }
+
+        arguments?.textArg?.let(binding.edit::setText)
 
         binding.edit.requestFocus()
 
@@ -118,14 +136,6 @@ class NewPostFragment : Fragment() {
 
         binding.removePhoto.setOnClickListener {
             viewModel.changePhoto(null, null)
-        }
-
-        viewModel.edited.observe(viewLifecycleOwner) { post ->
-            if (post.id != 0L) {
-                binding.edit.setText(post.content)
-                binding.edit.requestFocus()
-                viewModel.cancelEdit()
-            }
         }
 
         viewModel.postCreated.observe(viewLifecycleOwner) {
