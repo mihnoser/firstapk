@@ -41,9 +41,7 @@ data class PostEntity(
         views = views,
         video = video,
         attachment = attachment?.let {
-            println("DEBUG PostEntity.toDto(): преобразуем attachment: $it")
             val result = it.toDto()
-            println("DEBUG PostEntity.toDto(): результат преобразования: $result")
             result
         },
         showed = showed,
@@ -94,20 +92,16 @@ data class AttachmentEmbeddable(
     var type: String
 ) {
     fun toDto(): Attachment? {
-        println("DEBUG AttachmentEmbeddable.toDto(): url=$url, type=$type, description=$description")
         return try {
             val attachmentType = enumValueOf<AttachmentType>(type)
-            println("DEBUG: AttachmentType успешно создан: $attachmentType")
             Attachment(url, attachmentType, description)
         } catch (e: IllegalArgumentException) {
-            println("DEBUG: ОШИБКА преобразования типа '$type': ${e.message}")
             null
         }
     }
 
     companion object {
         fun fromDto(dto: Attachment?) = dto?.let {
-            println("DEBUG AttachmentEmbeddable.fromDto(): url=${it.url}, type=${it.type.name}")
             AttachmentEmbeddable(
                 url = it.url,
                 description = it.description,

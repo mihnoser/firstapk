@@ -2,6 +2,7 @@ package ru.netology.nmedia.auth
 
 import android.content.Context
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -9,7 +10,9 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.PostApi
 import ru.netology.nmedia.dto.PushToken
+import kotlin.coroutines.EmptyCoroutineContext
 
 class AppAuth private constructor(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
@@ -39,7 +42,6 @@ class AppAuth private constructor(context: Context) {
 
     @Synchronized
     fun setAuth(id: Long, token: String?) {
-        println("DEBUG: AppAuth.setAuth called with id=$id, token=${token?.take(10)}...")
         _authStateFlow.value = AuthState(id, token)
         with(prefs.edit()) {
             putLong(idKey, id)
@@ -59,13 +61,45 @@ class AppAuth private constructor(context: Context) {
         sendPushToken()
     }
 
+//    fun sendPushToken(token: String? = null) {
+//        CoroutineScope(Dispatchers.Default).launch {
+//            try {
+//                val pushToken = PushToken(token ?: Firebase.messaging.token.await())
+//                Api.service.sendPushToken(pushToken)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
+//    }
+
     fun sendPushToken(token: String? = null) {
-        CoroutineScope(Dispatchers.Default).launch {
-            try {
-                val pushToken = PushToken(token ?: Firebase.messaging.token.await())
-                Api.service.sendPushToken(pushToken)
-            } catch (e: Exception) {
-                e.printStackTrace()
+        CoroutineScope(EmptyCoroutineContext).launch {
+            runCatching {
+                Api.service.sendPushToken(
+                    PushToken(token ?: FirebaseMessaging.getInstance().token.await())
+                )
+            }
+                .onFailure { it.printStackTrace() }
+        }
+    }
+
+    fun isRecipientValid(recipientId: Long?): Boolean {
+        val currentUserId = authStateFlow.value.id
+
+        return when {
+            recipientId == null -> true
+            recipientId == 0L -> {
+                if (currentUserId == 0L) {
+                    true
+                } else {
+                    sendPushToken()
+                    false
+                }
+            }
+            recipientId == currentUserId -> true
+            else -> {
+                sendPushToken()
+                false
             }
         }
     }

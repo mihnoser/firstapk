@@ -14,6 +14,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationManagerCompat
+import ru.netology.nmedia.auth.AppAuth
+import ru.netology.nmedia.dto.PushMessage
 import kotlin.random.Random
 
 
@@ -39,25 +41,51 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
-        message.data[action]?.let {
-            when (Action.getValidAction(it)) {
-                Action.LIKE -> handleLike(gson.fromJson(message.data[content], Like::class.java))
-                Action.NEW_POST -> handleAddPost(gson.fromJson(message.data[content], AddPost::class.java))
-                Action.ERROR -> println("ERROR_PUSH")
+        try {
+            val contentJson = message.data["content"]
+            if (contentJson == null) {
+                handleActionMessage(message)
+                return
             }
+
+            val pushMessage = gson.fromJson(contentJson, PushMessage::class.java)
+            val currentUserId = AppAuth.getInstance().authStateFlow.value.id
+
+            when {
+                pushMessage.recipientId == null -> {
+                    sendNotification(pushMessage.content)
+                }
+                pushMessage.recipientId == currentUserId -> {
+                    sendNotification(pushMessage.content)
+                }
+                else -> {
+                    AppAuth.getInstance().sendPushToken()
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            sendNotification("Новое уведомление")
         }
     }
 
-    private fun handleLike(content: Like) {
+    private fun sendNotification(text: String) {
         val notification = NotificationCompat.Builder(this, channelId)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(
-                getString(R.string.notification_user_liked, content.userName, content.postAuthor))
-
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(text)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .build()
 
         notify(notification)
+    }
+
+
+    private fun handleActionMessage(message: RemoteMessage) {
+        val action = message.data["action"]
+        val content = message.data["content"]
+
+        if (action != null && content != null) {
+        }
     }
 
     @SuppressLint("StringFormatInvalid")
@@ -85,7 +113,7 @@ class FCMService : FirebaseMessagingService() {
     }
 
     override fun onNewToken(token: String) {
-        Log.i("fcm token", token)
+        AppAuth.getInstance().sendPushToken(token)
     }
 
     enum class Action {

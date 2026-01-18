@@ -31,7 +31,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         AppAuth.initApp(applicationContext)
-        println("DEBUG: AppAuth initialized, authState = ${AppAuth.getInstance().authStateFlow.value}")
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -98,8 +97,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
 
         val authState = AppAuth.getInstance().authStateFlow.value
         val authenticated = authState.id != 0L
-        println("DEBUG: onCreateOptionsMenu - authState.id = ${authState.id}, authenticated = $authenticated")
-        println("DEBUG: AuthViewModel.authenticated.value = ${viewModel.authenticated.value}")
 
         menu.let {
             it.setGroupVisible(R.id.unauthenticated, !authenticated)
@@ -111,7 +108,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.signin -> {
-                println("DEBUG: Sign in clicked")
                 findNavController(R.id.nav_host_fragment)
                     .navigate(R.id.action_feedFragment_to_loginFragment)
                 true
@@ -120,7 +116,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
                 true
             }
             R.id.signout -> {
-                println("DEBUG: Sign out clicked")
                 AppAuth.getInstance().removeAuth()
                 true
             }

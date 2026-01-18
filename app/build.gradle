@@ -125,7 +125,7 @@ dependencies {
     ksp "com.github.bumptech.glide:compiler:$glide_version"
     implementation "com.github.dhaval2404:imagepicker:$imagepicker_version"
     implementation platform("com.google.firebase:firebase-bom:$firebase_version")
-    implementation "com.google.firebase:firebase-messaging-ktx"
+    implementation "com.google.firebase:firebase-messaging"
     implementation "com.google.android.gms:play-services-base:$play_services_base_version"
     implementation "androidx.media:media:1.7.0"
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugar_version"
