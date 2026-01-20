@@ -9,8 +9,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.EditPostContract
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -19,12 +21,13 @@ import ru.netology.nmedia.databinding.FragmentPostBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
 import ru.netology.nmedia.viewmodel.PostViewModel
+import kotlin.getValue
 
+@AndroidEntryPoint
 class PostFragment : Fragment() {
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment
-    )
+//    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by activityViewModels()
 
     private val editPostLauncher = registerForActivityResult(
         EditPostContract

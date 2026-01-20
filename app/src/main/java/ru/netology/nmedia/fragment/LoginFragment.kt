@@ -9,14 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.databinding.FragmentLoginBinding
 import ru.netology.nmedia.view.afterTextChanged
 import ru.netology.nmedia.viewmodel.AuthViewModel
 
+
+@AndroidEntryPoint
 class LoginFragment : Fragment() {
 
     private var fragmentBinding: FragmentLoginBinding? = null
+
     private val viewModelAuth: AuthViewModel by viewModels()
 
     override fun onCreateView(
@@ -54,21 +58,16 @@ class LoginFragment : Fragment() {
 
             login.setOnClickListener {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    println("DEBUG: Login button clicked")
-                    println("DEBUG: Username: ${username.text}, Password: ${password.text}")
 
                     val response = viewModelAuth.authenticate(
                         username.text.toString(),
                         password.text.toString()
                     )
 
-                    println("DEBUG: Authentication response id=${response.id}")
 
                     if (response.id != 0L) {
-                        println("DEBUG: Authentication successful, navigating back")
                         findNavController().navigateUp()
                     } else {
-                        println("DEBUG: Authentication failed")
                         Toast.makeText(
                             requireContext(),
                             "Ошибка авторизации. Проверьте логин и пароль",

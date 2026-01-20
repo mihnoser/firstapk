@@ -4,18 +4,24 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.auth.LoginFormState
+import javax.inject.Inject
 
-class AuthViewModel : ViewModel() {
-    val data : LiveData<AuthState> = AppAuth.getInstance()
+@HiltViewModel
+class AuthViewModel @Inject constructor(
+    private val apiService: ApiService,
+    private val appAuth: AppAuth,
+) : ViewModel() {
+    val data : LiveData<AuthState> = appAuth
         .authStateFlow
         .asLiveData(Dispatchers.Default)
-    val authenticated: LiveData<Boolean> = AppAuth.getInstance()
+    val authenticated: LiveData<Boolean> = appAuth
         .authStateFlow
         .map { it.id != 0L }
         .asLiveData(Dispatchers.Default)
@@ -43,8 +49,8 @@ class AuthViewModel : ViewModel() {
 
     suspend fun authenticate(login: String, pass: String): AuthState {
         return try {
-            val response = Api.service.updateUser(login, pass)
-            AppAuth.getInstance().setAuth(response.id, response.token)
+            val response = apiService.updateUser(login, pass)
+            appAuth.setAuth(response.id, response.token)
             response
         } catch (e: Exception) {
             AuthState()

@@ -15,13 +15,18 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.AuthViewModel
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
+
+    @Inject
+    lateinit var appAuth: AppAuth
 
     private val viewModel: AuthViewModel by viewModels()
 
@@ -30,7 +35,6 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
 
         setSupportActionBar(findViewById(R.id.toolbar))
 
-        AppAuth.initApp(applicationContext)
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -96,7 +100,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
 
-        val authState = AppAuth.getInstance().authStateFlow.value
+        val authState = appAuth.authStateFlow.value
         val authenticated = authState.id != 0L
 
         menu.let {
@@ -117,7 +121,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
                 true
             }
             R.id.signout -> {
-                AppAuth.getInstance().removeAuth()
+                appAuth.removeAuth()
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -1,29 +1,29 @@
 package ru.netology.nmedia.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.auth.AppAuth
-import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryNetwork
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
+import javax.inject.Inject
 
 private val empty = Post(
     id = 0,
@@ -44,14 +44,16 @@ private val empty = Post(
 
 private val noPhoto = PhotoModel()
 
-class PostViewModel(application: Application): AndroidViewModel(application) {
+@HiltViewModel
+@ExperimentalCoroutinesApi
+class PostViewModel @Inject constructor(
+    private val repository: PostRepository,
+    private val appAuth: AppAuth,
+): ViewModel() {
 
-    private val authState = AppAuth.getInstance().authStateFlow.asLiveData(Dispatchers.Default)
+    private val authState = appAuth.authStateFlow.asLiveData(Dispatchers.Default)
 
-    private val repository: PostRepository = PostRepositoryNetwork(
-        AppDb.getInstance(application).postDao()
-    )
-    val data: LiveData<FeedModel> = AppAuth.getInstance()
+    val data: LiveData<FeedModel> = appAuth
         .authStateFlow
         .flatMapLatest { (myId, _) ->
             repository.data
@@ -213,7 +215,7 @@ class PostViewModel(application: Application): AndroidViewModel(application) {
     fun updateUser(login : String, pass : String)  =  viewModelScope.launch {
         try {
             val account = repository.updateUser(login, pass)
-            AppAuth.getInstance().setAuth(account.id, account.token)
+            appAuth.setAuth(account.id, account.token)
         } catch (e: Exception) {
             _state.value = FeedModelState(error = true)
         }

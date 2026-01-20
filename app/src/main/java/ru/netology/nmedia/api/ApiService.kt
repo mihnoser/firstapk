@@ -55,14 +55,3 @@ interface ApiService {
     suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): AuthState
 
 }
-
-//object Api {
-//    val service: PostApi by lazy {
-//        retrofit.create(PostApi::class.java)
-//    }
-//
-//    val loggingService: PostApi by lazy {
-//        loggingRetrofit.create(PostApi::class.java)
-//    }
-//
-//}

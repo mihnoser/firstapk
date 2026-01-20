@@ -7,26 +7,29 @@ import android.view.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.github.dhaval2404.imagepicker.constant.ImageProvider
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.FragmentNewPostBinding
 import ru.netology.nmedia.util.AndroidUtils
 import ru.netology.nmedia.util.StringArg
 import ru.netology.nmedia.viewmodel.PostViewModel
+import kotlin.getValue
 
+@AndroidEntryPoint
 class NewPostFragment : Fragment() {
 
     companion object {
         var Bundle.textArg: String? by StringArg
     }
 
-    private val viewModel: PostViewModel by viewModels(
-        ownerProducer = ::requireParentFragment,
-    )
+//    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
+    private val viewModel: PostViewModel by activityViewModels()
 
     private var fragmentBinding: FragmentNewPostBinding? = null
 
