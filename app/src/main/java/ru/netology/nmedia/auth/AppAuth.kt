@@ -1,20 +1,16 @@
 package ru.netology.nmedia.auth
 
 import android.content.Context
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
-import com.google.firebase.messaging.ktx.messaging
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import ru.netology.nmedia.api.Api
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.di.DependecyContainer
 import ru.netology.nmedia.dto.PushToken
 import kotlin.coroutines.EmptyCoroutineContext
 
-class AppAuth private constructor(context: Context) {
+class AppAuth(context: Context) {
     private val prefs = context.getSharedPreferences("auth", Context.MODE_PRIVATE)
     private val idKey = "id"
     private val tokenKey = "token"
@@ -75,7 +71,7 @@ class AppAuth private constructor(context: Context) {
     fun sendPushToken(token: String? = null) {
         CoroutineScope(EmptyCoroutineContext).launch {
             runCatching {
-                Api.service.sendPushToken(
+                DependecyContainer.getInstance().apiService.sendPushToken(
                     PushToken(token ?: FirebaseMessaging.getInstance().token.await())
                 )
             }
@@ -102,24 +98,6 @@ class AppAuth private constructor(context: Context) {
                 false
             }
         }
-    }
-
-
-    companion object {
-        @Volatile
-        private var instance: AppAuth? = null
-
-        fun getInstance(): AppAuth = synchronized(this) {
-            instance ?: throw IllegalStateException(
-                "AppAuth is not initialized, you must call AppAuth.initializeApp(Context context) first."
-            )
-        }
-
-        fun initApp(context: Context): AppAuth = instance ?: synchronized(this) {
-            instance ?: buildAuth(context).also { instance = it }
-        }
-
-        private fun buildAuth(context: Context): AppAuth = AppAuth(context)
     }
 }
 

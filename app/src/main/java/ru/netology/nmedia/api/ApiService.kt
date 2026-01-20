@@ -11,12 +11,11 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
 import ru.netology.nmedia.auth.AuthState
-import ru.netology.nmedia.dto.AuthResponse
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PushToken
 
-interface PostApi {
+interface ApiService {
     @GET("posts")
     suspend fun getAll(): List<Post>
 
@@ -56,3 +55,14 @@ interface PostApi {
     suspend fun updateUser(@Field("login") login: String, @Field("pass") pass: String): AuthState
 
 }
+
+//object Api {
+//    val service: PostApi by lazy {
+//        retrofit.create(PostApi::class.java)
+//    }
+//
+//    val loggingService: PostApi by lazy {
+//        loggingRetrofit.create(PostApi::class.java)
+//    }
+//
+//}

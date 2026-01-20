@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import ru.netology.nmedia.api.Api
+import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.Attachment
@@ -26,7 +26,10 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
 
-class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
+class PostRepositoryNetwork(
+    private val dao: PostDao,
+    private val apiService: ApiService,
+    ): PostRepository {
 
     override val data = dao.getAll()
         .map(List<PostEntity>::toDto)
@@ -34,7 +37,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
     override suspend fun getAll() {
         try {
-            val posts = Api.service.getAll()
+            val posts = apiService.getAll()
             dao.insert(posts.toEntity())
         } catch (e: IOException) {
             throw NetworkError
@@ -52,9 +55,9 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
             dao.likeById(id)
 
             val post = if (wasLiked) {
-                Api.service.dislikeById(id)
+                apiService.dislikeById(id)
             } else {
-                Api.service.likeById(id)
+                apiService.likeById(id)
             }
 
             val currentPost = dao.getAll().first().find { it.id == id }
@@ -75,7 +78,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
         try {
             dao.shareById(id)
-            val post = Api.service.shareById(id)
+            val post = apiService.shareById(id)
             val currentPost = dao.getAll().first().find { it.id == id }
             dao.insert(PostEntity.fromDto(post.copy(showed = currentPost?.showed ?: true)))
             return post
@@ -93,7 +96,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
         try {
             dao.removeById(id)
-            Api.service.deleteById(id)
+            apiService.deleteById(id)
         } catch (e: Exception) {
             if (originalPost != null) {
                 dao.insert(PostEntity.fromDto(originalPost))
@@ -104,7 +107,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
     override suspend fun save(post: Post): Post {
         try {
-            val postWithId = Api.service.save(post)
+            val postWithId = apiService.save(post)
             dao.insert(PostEntity.fromDto(postWithId.copy(showed = true)))
             return postWithId
         } catch (e: Exception) {
@@ -117,7 +120,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
         while (true) {
             delay(10_000L)
             try {
-                val newerPosts = Api.service.getNewer(id)
+                val newerPosts = apiService.getNewer(id)
                 dao.insert(newerPosts.toEntity())
                 emit(newerPosts.size)
             } catch (e: Exception) {
@@ -168,7 +171,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
                 upload.file.asRequestBody()
             )
 
-            val result = Api.loggingService.upload(mediaPart)
+            val result = apiService.upload(mediaPart)
 
             return result
         } catch (e: IOException) {
@@ -181,7 +184,7 @@ class PostRepositoryNetwork(private val dao: PostDao): PostRepository {
 
     override suspend fun updateUser(login: String, pass: String): AuthState {
         try {
-            val authState = Api.service.updateUser(login, pass)
+            val authState = apiService.updateUser(login, pass)
             return authState
         } catch (e: IOException) {
             throw NetworkError
