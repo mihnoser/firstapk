@@ -28,13 +28,21 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
     @Inject
     lateinit var appAuth: AppAuth
 
+    @Inject
+    lateinit var firebaseMessaging: FirebaseMessaging
+
+    @Inject
+    lateinit var firebaseInstallations: FirebaseInstallations
+
+    @Inject
+    lateinit var googleApiAvailability: GoogleApiAvailability
+
     private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setSupportActionBar(findViewById(R.id.toolbar))
-
 
         intent?.let {
             if (it.action != Intent.ACTION_SEND) {
@@ -60,41 +68,38 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
             invalidateOptionsMenu()
         }
 
-        viewModel.data.observe(this){
+        viewModel.data.observe(this) {
             invalidateOptionsMenu()
             if (it.id == 0L) {
-                Toast.makeText(this@AppActivity,getString(R.string.guest_entrance), Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(
+                    this@AppActivity,
+                    getString(R.string.guest_entrance),
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 val welcome = getString(R.string.welcome)
-                Toast.makeText(this@AppActivity,"$welcome ${it.id}", Toast.LENGTH_LONG)
-                    .show()
+                Toast.makeText(this@AppActivity, "$welcome ${it.id}", Toast.LENGTH_LONG).show()
             }
         }
 
-        FirebaseInstallations.getInstance().id.addOnCompleteListener { task ->
+        firebaseInstallations.id.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
             }
-
-            val token = task.result
-            println(token)
+            println("Firebase Installation ID: ${task.result}")
         }
 
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+        firebaseMessaging.token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 println("some stuff happened: ${task.exception}")
                 return@addOnCompleteListener
             }
-
-            val token = task.result
-            println(token)
+            println("FCM Token: ${task.result}")
         }
 
         checkGoogleApiAvailability()
         requestNotificationsPermission()
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -128,7 +133,7 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
         }
     }
 
-    companion object{
+    companion object {
         var Bundle.textArg: String? by StringArg
     }
 
@@ -146,21 +151,20 @@ class AppActivity : AppCompatActivity(R.layout.activity_app_with_toolbar) {
     }
 
     private fun checkGoogleApiAvailability() {
-        with(GoogleApiAvailability.getInstance()) {
-            val code = isGooglePlayServicesAvailable(this@AppActivity)
-            if (code == ConnectionResult.SUCCESS) {
-                return@with
-            }
-            if (isUserResolvableError(code)) {
-                getErrorDialog(this@AppActivity, code, 9000)?.show()
-                return
-            }
-            Toast.makeText(this@AppActivity, R.string.google_play_unavailable, Toast.LENGTH_LONG).show()
+        val code = googleApiAvailability.isGooglePlayServicesAvailable(this)
+        if (code == ConnectionResult.SUCCESS) {
+            return
         }
 
-        FirebaseMessaging.getInstance().token.addOnSuccessListener {
-            println(it)
+        if (googleApiAvailability.isUserResolvableError(code)) {
+            googleApiAvailability.getErrorDialog(this, code, 9000)?.show()
+            return
+        }
+
+        Toast.makeText(this, R.string.google_play_unavailable, Toast.LENGTH_LONG).show()
+
+        firebaseMessaging.token.addOnSuccessListener { token ->
+            println("FCM Token after Google API check: $token")
         }
     }
-
 }

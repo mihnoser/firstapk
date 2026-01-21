@@ -17,7 +17,7 @@ data class PostEntity(
     val content: String,
     val likes: Int = 12,
     val shared: Int = 25,
-    val likeByMe: Boolean = false,
+    val likedByMe: Boolean = false,
     val shareByMe: Boolean = false,
     val views: Int = 7,
     val video: String? = null,
@@ -36,7 +36,7 @@ data class PostEntity(
         content = content,
         likes = likes,
         shared = shared,
-        likeByMe = likeByMe,
+        likedByMe = likedByMe,
         shareByMe = shareByMe,
         views = views,
         video = video,
@@ -49,22 +49,6 @@ data class PostEntity(
         ownedByMe = ownedByMe
     )
 
-//    fun toDto() = Post(
-//        id = id,
-//        author = author,
-//        authorAvatar = authorAvatar,
-//        published = published,
-//        content = content,
-//        likes = likes,
-//        shared = shared,
-//        likeByMe = likeByMe,
-//        shareByMe = shareByMe,
-//        views = views,
-//        video = video,
-//        attachment = attachment?.toDto(),
-//        showed = showed
-//    )
-
     companion object {
         fun fromDto(dto: Post) = PostEntity(
             id = dto.id,
@@ -74,7 +58,7 @@ data class PostEntity(
             content = dto.content,
             likes = dto.likes,
             shared = dto.shared,
-            likeByMe = dto.likeByMe,
+            likedByMe = dto.likedByMe,
             shareByMe = dto.shareByMe,
             views = dto.views,
             video = dto.video,
@@ -110,31 +94,6 @@ data class AttachmentEmbeddable(
         }
     }
 }
-
-//data class AttachmentEmbeddable(
-//    var url: String,
-//    var description: String? = null,
-//    var type: String
-//) {
-//    fun toDto(): Attachment? {
-//        return try {
-//            val attachmentType = enumValueOf<AttachmentType>(type)
-//            Attachment(url, attachmentType, description)
-//        } catch (e: IllegalArgumentException) {
-//            null
-//        }
-//    }
-//
-//    companion object {
-//        fun fromDto(dto: Attachment?) = dto?.let {
-//            AttachmentEmbeddable(
-//                url = it.url,
-//                description = it.description,
-//                type = it.type.name
-//            )
-//        }
-//    }
-//}
 
 fun List<PostEntity>.toDto(): List<Post> = map(PostEntity::toDto)
 fun List<Post>.toEntity(): List<PostEntity> = map {

@@ -50,7 +50,7 @@ class PostRepositoryNetwork @Inject constructor(
     override suspend fun likeById(id: Long): Post {
         val posts = dao.getAll().first().map { it.toDto() }
         val originalPost = posts.find { it.id == id }
-        val wasLiked = originalPost?.likeByMe ?: false
+        val wasLiked = originalPost?.likedByMe ?: false
 
         try {
             dao.likeById(id)

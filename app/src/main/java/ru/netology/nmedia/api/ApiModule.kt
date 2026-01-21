@@ -33,7 +33,7 @@ class ApiModule {
     fun provideAuthInterceptor(appAuth: AppAuth): Interceptor = Interceptor { chain ->
         val requestBuilder = chain.request().newBuilder()
         appAuth.authStateFlow.value.token?.let { token ->
-            requestBuilder.addHeader("Authorization", "Bearer $token")
+            requestBuilder.addHeader("Authorization", "$token")
         }
         chain.proceed(requestBuilder.build())
     }

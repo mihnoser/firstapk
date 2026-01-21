@@ -60,7 +60,7 @@ class PostViewHolder(
 
             avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
 
-            like.isChecked = post.likeByMe
+            like.isChecked = post.likedByMe
             like.text = formatNumber(post.likes.toLong())
 
             share.isChecked = post.shareByMe
