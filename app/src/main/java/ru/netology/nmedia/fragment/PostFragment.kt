@@ -99,14 +99,14 @@ class PostFragment : Fragment() {
             }
         })
 
-        viewModel.data.observe(viewLifecycleOwner) { feedModel ->
-            val posts = feedModel.posts
-            val post = posts.find { it.id == postId} ?: run {
-                findNavController().navigateUp()
-                return@observe
-            }
-            viewHolder.bind(post)
-        }
+//        viewModel.data.observe(viewLifecycleOwner) { feedModel ->
+//            val posts = feedModel.posts
+//            val post = posts.find { it.id == postId} ?: run {
+//                findNavController().navigateUp()
+//                return@observe
+//            }
+//            viewHolder.bind(post)
+//        }
 
         return binding.root
     }

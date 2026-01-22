@@ -11,9 +11,12 @@ import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.paging.LoadState
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.EditPostContract
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -25,7 +28,6 @@ import ru.netology.nmedia.viewmodel.PostViewModel
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
-//    private val viewModel: PostViewModel by viewModels(ownerProducer = ::requireParentFragment)
     private val viewModel: PostViewModel by activityViewModels()
 
     private lateinit var binding: FragmentFeedBinding
@@ -108,14 +110,28 @@ class FeedFragment : Fragment() {
             viewModel.load()
         }
 
-        viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
-            binding.empty.isVisible = state.empty
+        lifecycleScope.launchWhenCreated {
+            viewModel.data.collectLatest {
+                adapter.submitData(it)
+            }
         }
 
-        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-            if (state > 0) binding.newerPostAdd.isVisible = true
+        lifecycleScope.launchWhenCreated {
+            adapter.loadStateFlow.collectLatest {
+                binding.swipeRefreshLayout.isRefreshing = it.refresh is LoadState.Loading
+                        || it.append is LoadState.Loading
+                        || it.prepend is LoadState.Loading
+            }
         }
+
+//        viewModel.data.observe(viewLifecycleOwner) { state ->
+//            adapter.submitList(state.posts)
+//            binding.empty.isVisible = state.empty
+//        }
+
+//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
+//            if (state > 0) binding.newerPostAdd.isVisible = true
+//        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
@@ -130,7 +146,7 @@ class FeedFragment : Fragment() {
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.refresh()
+            adapter.refresh()
         }
 
         binding.add.setOnClickListener {
@@ -140,6 +156,7 @@ class FeedFragment : Fragment() {
         binding.newerPostAdd.setOnClickListener {
             viewModel.loadUnshowed()
             binding.newerPostAdd.isVisible = false
+            viewModel.refresh()
 
             binding.list.postDelayed({
                 binding.list.smoothScrollToPosition(0)
