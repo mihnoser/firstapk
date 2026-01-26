@@ -41,16 +41,16 @@ class PostRepositoryNetwork @Inject constructor(
         }
     ).flow
 
-    override suspend fun getAll() {
-        try {
-            val posts = apiService.getAll()
-            dao.insert(posts.toEntity())
-        } catch (e: IOException) {
-            throw NetworkError
-        } catch (e: Exception) {
-            throw UnknownError
-        }
-    }
+//    override suspend fun getAll() {
+//        try {
+//            val posts = apiService.getAll()
+//            dao.insert(posts.toEntity())
+//        } catch (e: IOException) {
+//            throw NetworkError
+//        } catch (e: Exception) {
+//            throw UnknownError
+//        }
+//    }
 
     override suspend fun likeById(id: Long): Post {
         val posts = dao.getAll().first().map { it.toDto() }
@@ -122,20 +122,20 @@ class PostRepositoryNetwork @Inject constructor(
         }
     }
 
-    override fun getNewer(id: Long): Flow<Int> = flow {
-        while (true) {
-            delay(10_000L)
-            try {
-                val newerPosts = apiService.getNewer(id)
-                dao.insert(newerPosts.toEntity())
-                emit(newerPosts.size)
-            } catch (e: Exception) {
-                emit(0)
-            }
-        }
-    }
-        .catch { e -> throw AppError.from(e) }
-        .flowOn(Dispatchers.Default)
+//    override fun getNewer(id: Long): Flow<Int> = flow {
+//        while (true) {
+//            delay(10_000L)
+//            try {
+//                val newerPosts = apiService.getNewer(id)
+//                dao.insert(newerPosts.toEntity())
+//                emit(newerPosts.size)
+//            } catch (e: Exception) {
+//                emit(0)
+//            }
+//        }
+//    }
+//        .catch { e -> throw AppError.from(e) }
+//        .flowOn(Dispatchers.Default)
 
     override suspend fun getUnshowed() {
         try {

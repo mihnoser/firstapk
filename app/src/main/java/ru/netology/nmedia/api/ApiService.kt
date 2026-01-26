@@ -8,8 +8,8 @@ import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.dto.PushToken
 
 interface ApiService {
-    @GET("posts")
-    suspend fun getAll(): List<Post>
+//    @GET("posts")
+//    suspend fun getAll(): List<Post>
 
     @GET("posts/latest")
     suspend fun getLatest(@Query("count") count: Int): List<Post>
@@ -29,8 +29,8 @@ interface ApiService {
     @POST("posts/{id}/shares")
     suspend fun shareById(@Path("id") id: Long): Post
 
-    @GET("posts/{id}/newer")
-    suspend fun getNewer(@Path("id") id: Long): List<Post>
+//    @GET("posts/{id}/newer")
+//    suspend fun getNewer(@Path("id") id: Long): List<Post>
 
     @GET("posts/{id}/before")
     suspend fun getBefore(@Path("id") id: Long, @Query("count") count: Int): List<Post>
