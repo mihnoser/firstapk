@@ -1,26 +1,26 @@
 package ru.netology.nmedia.repository
 
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import androidx.paging.PagingData
+import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.api.ApiService
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
+import ru.netology.nmedia.dao.PostRemoteKeyDao
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.AttachmentType
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.entity.PostEntity
-import ru.netology.nmedia.entity.toEntity
 import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
@@ -28,37 +28,32 @@ import java.io.IOException
 import javax.inject.Inject
 
 class PostRepositoryNetwork @Inject constructor(
-    private val dao: PostDao,
+    private val postDao: PostDao,
     private val apiService: ApiService,
+    private val postRemoteKeyDao: PostRemoteKeyDao,
+    private val appDb: AppDb,
 ): PostRepository {
 
-    override val data = Pager(
-        config = PagingConfig(pageSize = 10, enablePlaceholders = false),
-        pagingSourceFactory = {
-            PostPagingSource(
-                apiService
+    @OptIn(ExperimentalPagingApi::class)
+    override val data: Flow<PagingData<Post>> = Pager(
+        config = PagingConfig(pageSize = 5, enablePlaceholders = false),
+        pagingSourceFactory = { postDao.getPagingSource() },
+        remoteMediator = PostRemoteMediator(
+            apiService = apiService,
+            postDao = postDao,
+            postRemoteKeyDao = postRemoteKeyDao,
+            appDb = appDb,
             )
-        }
     ).flow
-
-//    override suspend fun getAll() {
-//        try {
-//            val posts = apiService.getAll()
-//            dao.insert(posts.toEntity())
-//        } catch (e: IOException) {
-//            throw NetworkError
-//        } catch (e: Exception) {
-//            throw UnknownError
-//        }
-//    }
+        .map { it.map(PostEntity::toDto) }
 
     override suspend fun likeById(id: Long): Post {
-        val posts = dao.getAll().first().map { it.toDto() }
+        val posts = postDao.getAll().first().map { it.toDto() }
         val originalPost = posts.find { it.id == id }
         val wasLiked = originalPost?.likedByMe ?: false
 
         try {
-            dao.likeById(id)
+            postDao.likeById(id)
 
             val post = if (wasLiked) {
                 apiService.dislikeById(id)
@@ -66,46 +61,46 @@ class PostRepositoryNetwork @Inject constructor(
                 apiService.likeById(id)
             }
 
-            val currentPost = dao.getAll().first().find { it.id == id }
-            dao.insert(PostEntity.fromDto(post.copy(showed = currentPost?.showed ?: true)))
+            val currentPost = postDao.getAll().first().find { it.id == id }
+            postDao.insert(PostEntity.fromDto(post.copy(showed = currentPost?.showed ?: true)))
             return post
 
         } catch (e: Exception) {
             if (originalPost != null) {
-                dao.insert(PostEntity.fromDto(originalPost))
+                postDao.insert(PostEntity.fromDto(originalPost))
             }
             throw AppError.from(e)
         }
     }
 
     override suspend fun shareById(id: Long): Post {
-        val posts = dao.getAll().first().map { it.toDto() }
+        val posts = postDao.getAll().first().map { it.toDto() }
         val originalPost = posts.find { it.id == id }
 
         try {
-            dao.shareById(id)
+            postDao.shareById(id)
             val post = apiService.shareById(id)
-            val currentPost = dao.getAll().first().find { it.id == id }
-            dao.insert(PostEntity.fromDto(post.copy(showed = currentPost?.showed ?: true)))
+            val currentPost = postDao.getAll().first().find { it.id == id }
+            postDao.insert(PostEntity.fromDto(post.copy(showed = currentPost?.showed ?: true)))
             return post
         } catch (e: Exception) {
             if (originalPost != null) {
-                dao.insert(PostEntity.fromDto(originalPost))
+                postDao.insert(PostEntity.fromDto(originalPost))
             }
             throw AppError.from(e)
         }
     }
 
     override suspend fun removeById(id: Long) {
-        val posts = dao.getAll().first().map { it.toDto() }
+        val posts = postDao.getAll().first().map { it.toDto() }
         val originalPost = posts.find { it.id == id }
 
         try {
-            dao.removeById(id)
+            postDao.removeById(id)
             apiService.deleteById(id)
         } catch (e: Exception) {
             if (originalPost != null) {
-                dao.insert(PostEntity.fromDto(originalPost))
+                postDao.insert(PostEntity.fromDto(originalPost))
             }
             throw AppError.from(e)
         }
@@ -114,7 +109,7 @@ class PostRepositoryNetwork @Inject constructor(
     override suspend fun save(post: Post): Post {
         try {
             val postWithId = apiService.save(post)
-            dao.insert(PostEntity.fromDto(postWithId.copy(showed = true)))
+            postDao.insert(PostEntity.fromDto(postWithId.copy(showed = true)))
             return postWithId
         } catch (e: Exception) {
             e.printStackTrace()
@@ -122,24 +117,9 @@ class PostRepositoryNetwork @Inject constructor(
         }
     }
 
-//    override fun getNewer(id: Long): Flow<Int> = flow {
-//        while (true) {
-//            delay(10_000L)
-//            try {
-//                val newerPosts = apiService.getNewer(id)
-//                dao.insert(newerPosts.toEntity())
-//                emit(newerPosts.size)
-//            } catch (e: Exception) {
-//                emit(0)
-//            }
-//        }
-//    }
-//        .catch { e -> throw AppError.from(e) }
-//        .flowOn(Dispatchers.Default)
-
     override suspend fun getUnshowed() {
         try {
-            dao.showAll()
+            postDao.showAll()
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
