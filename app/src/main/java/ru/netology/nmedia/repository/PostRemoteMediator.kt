@@ -87,8 +87,12 @@ class PostRemoteMediator(
                 }
 
                 if (body.isNotEmpty()) {
-                    postDao.insert(body.map(PostEntity::fromDto))
+                    val entities = body.map { dto ->
+                        PostEntity.fromDto(dto).copy(showed = true)
+                    }
+                    postDao.insert(entities)
                 }
+
             }
 
             return MediatorResult.Success(body.isEmpty())
