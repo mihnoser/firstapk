@@ -68,4 +68,8 @@ interface PostDao {
 
     @Query("SELECT COUNT(*) FROM PostEntity")
     suspend fun count(): Int
+
+    @Query("SELECT MAX(id) FROM PostEntity WHERE showed = 1")
+    suspend fun getLatestPostId(): Long?
+
 }
