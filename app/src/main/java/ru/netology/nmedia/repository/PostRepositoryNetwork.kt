@@ -4,6 +4,7 @@ import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import androidx.paging.insertSeparators
 import androidx.paging.map
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -15,8 +16,10 @@ import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dao.PostRemoteKeyDao
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.Ad
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.AttachmentType
+import ru.netology.nmedia.dto.FeedItem
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
@@ -26,6 +29,7 @@ import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.random.Random
 
 class PostRepositoryNetwork @Inject constructor(
     private val postDao: PostDao,
@@ -35,7 +39,7 @@ class PostRepositoryNetwork @Inject constructor(
 ): PostRepository {
 
     @OptIn(ExperimentalPagingApi::class)
-    override val data: Flow<PagingData<Post>> = Pager(
+    override val data: Flow<PagingData<FeedItem>> = Pager(
         config = PagingConfig(pageSize = 5, enablePlaceholders = false),
         pagingSourceFactory = { postDao.getPagingSource() },
         remoteMediator = PostRemoteMediator(
@@ -45,7 +49,15 @@ class PostRepositoryNetwork @Inject constructor(
             appDb = appDb,
             )
     ).flow
-        .map { it.map(PostEntity::toDto) }
+        .map { it.map(PostEntity::toDto)
+            .insertSeparators { previous, _ ->
+                if (previous?.id?.rem(4) == 0L) {
+                    Ad(Random.nextLong(), "figma.jpg")
+                } else {
+                    null
+                }
+            }
+        }
 
     override suspend fun likeById(id: Long): Post {
         val posts = postDao.getAll().first().map { it.toDto() }

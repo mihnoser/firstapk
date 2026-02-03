@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.LoadState
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -21,6 +22,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.activity.EditPostContract
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostAdapter
+import ru.netology.nmedia.adapter.PostLoadingStateAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.fragment.NewPostFragment.Companion.textArg
@@ -31,6 +33,7 @@ class FeedFragment : Fragment() {
     private val viewModel: PostViewModel by activityViewModels()
 
     private lateinit var binding: FragmentFeedBinding
+    private lateinit var adapter: PostAdapter
 
     private val editPostLauncher = registerForActivityResult(
         EditPostContract
@@ -46,9 +49,9 @@ class FeedFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
 
-        val binding = FragmentFeedBinding.inflate(inflater, container, false)
+        binding = FragmentFeedBinding.inflate(inflater, container, false)
 
-        val adapter = PostAdapter(object : OnInteractionListener {
+        adapter = PostAdapter(object : OnInteractionListener {
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post.id)
@@ -104,34 +107,38 @@ class FeedFragment : Fragment() {
             }
 
         })
-        binding.list.adapter = adapter
 
-        binding.swipeRefreshLayout.setOnRefreshListener {
-            viewModel.load()
-        }
+
+        binding.list.adapter = adapter.withLoadStateHeaderAndFooter(
+            header = PostLoadingStateAdapter(
+                retryListener = { adapter.retry() },
+                isHeader = true
+            ),
+            footer = PostLoadingStateAdapter(
+                retryListener = { adapter.retry() },
+                isHeader = false
+            )
+        )
+
+        binding.list.addItemDecoration(
+            DividerItemDecoration(binding.list.context, DividerItemDecoration.VERTICAL)
+        )
 
         lifecycleScope.launchWhenCreated {
-            viewModel.data.collectLatest {
-                adapter.submitData(it)
+            viewModel.data.collectLatest { pagingData ->
+                adapter.submitData(pagingData)
             }
         }
 
         lifecycleScope.launchWhenCreated {
-            adapter.loadStateFlow.collectLatest {
-                binding.swipeRefreshLayout.isRefreshing = it.refresh is LoadState.Loading
-                        || it.append is LoadState.Loading
-                        || it.prepend is LoadState.Loading
+            adapter.loadStateFlow.collectLatest { loadStates ->
+                binding.swipeRefreshLayout.isRefreshing = loadStates.refresh is LoadState.Loading
+
+                binding.newerPostAdd.isVisible =
+                    !(loadStates.refresh is LoadState.Loading || loadStates.append is LoadState.Loading)
             }
         }
 
-//        viewModel.data.observe(viewLifecycleOwner) { state ->
-//            adapter.submitList(state.posts)
-//            binding.empty.isVisible = state.empty
-//        }
-
-//        viewModel.newerCount.observe(viewLifecycleOwner) { state ->
-//            if (state > 0) binding.newerPostAdd.isVisible = true
-//        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             binding.progress.isVisible = state.loading
@@ -142,7 +149,6 @@ class FeedFragment : Fragment() {
                     }
                     .show()
             }
-            binding.swipeRefreshLayout.isRefreshing = state.refreshError
         }
 
         binding.swipeRefreshLayout.setOnRefreshListener {
@@ -161,6 +167,7 @@ class FeedFragment : Fragment() {
             binding.list.postDelayed({
                 binding.list.smoothScrollToPosition(0)
             }, 300)
+
         }
 
         return binding.root
